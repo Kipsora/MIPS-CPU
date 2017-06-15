@@ -7,10 +7,10 @@ module ex(
     input   wire[`ALU_CATEGORY_BUS] category,
     input   wire[`REGS_DATA_BUS]    operand1,
     input   wire[`REGS_DATA_BUS]    operand2,
-    input   wire[`REGS_ADDR_BUS]    input_write_address,
+    input   wire[`REGS_ADDR_BUS]    input_write_addr,
     input   wire                    input_write_enable,
 
-    output  reg[`REGS_ADDR_BUS]     write_address,
+    output  reg[`REGS_ADDR_BUS]     write_addr,
     output  reg                     write_enable,
     output  reg[`REGS_DATA_BUS]     write_data
 );
@@ -34,7 +34,7 @@ module ex(
 
     always @ (*) begin
         write_enable <= input_write_enable;
-        write_address <= input_write_address;
+        write_addr <= input_write_addr;
         case (category)
             `INST_ORI_CATEGORY: begin
                 write_data <= logic_result;
