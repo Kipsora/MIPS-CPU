@@ -19,8 +19,8 @@
 `define INST_DATA_BUS 31:0
 
 /* Definition with ROM */
-`define MEMO_NUM 131071
-`define MEMO_NUM_LOG 17
+`define MEMO_NUM 4
+`define MEMO_NUM_LOG 2
 
 /* Definition with register file */
 `define REGS_NUM 32

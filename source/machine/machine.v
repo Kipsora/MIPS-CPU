@@ -24,5 +24,10 @@ module machine(
         .addr(addr),
         .instruction(instruction)
     );
+    
+    initial begin
+        $dumpfile("result.lxt");
+        $dumpvars(2, mips_instance, rom_instance);
+    end
 
 endmodule
