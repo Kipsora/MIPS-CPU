@@ -17,7 +17,6 @@ module id_ex_buffer(
     output  reg[`REGS_DATA_BUS]     ex_operand2,
     output  reg[`REGS_ADDR_BUS]     ex_write_addr,
     output  reg                     ex_write_enable
-
 );
 
     always @ (posedge clock) begin

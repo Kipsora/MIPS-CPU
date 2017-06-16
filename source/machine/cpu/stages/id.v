@@ -21,7 +21,6 @@ module id(
 
     output  reg                     write_enable,
     output  reg[`REGS_ADDR_BUS]     write_addr
-
 );
 
     reg[`REGS_DATA_BUS]             imm;
