@@ -1,4 +1,4 @@
-`include "utility/utility.v"
+`include "macro.v"
 
 module mem(
     input   wire                    reset,

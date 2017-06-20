@@ -1,4 +1,4 @@
-`include "utility/utility.v"
+`include "macro.v"
 
 module mem_wb_buffer(
     input   wire                    clock,

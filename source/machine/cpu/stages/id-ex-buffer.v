@@ -1,4 +1,4 @@
-`include "utility/utility.v"
+`include "macro.v"
 
 module id_ex_buffer(
     input   wire                    clock,

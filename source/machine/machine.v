@@ -1,4 +1,4 @@
-`include "utility/utility.v"
+`include "macro.v"
 `include "machine/cpu/mips.v"
 `include "machine/rom/rom.v"
 
@@ -25,9 +25,16 @@ module machine(
         .instruction(instruction)
     );
     
+
+    /* DEBUG AREA OUTPUT BEGIN*/
+    integer idx;
     initial begin
-        $dumpfile("result.lxt");
-        $dumpvars(2, mips_instance, rom_instance);
+        $dumpfile("wave.lxt");
+        $dumpvars(0, mips_instance);
+        for (idx = 0; idx < 32; idx = idx + 1) begin
+            $dumpvars(0, mips_instance.gpr_file_instance.regs[idx]);
+        end
     end
+    /* DEBUG AREA OUTPUT END*/
 
 endmodule

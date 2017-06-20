@@ -1,4 +1,4 @@
-`include "utility/utility.v"
+`include "macro.v"
 
 module gpr_file(
     input   wire                    clock,
@@ -18,6 +18,7 @@ module gpr_file(
 );
 
     reg[`REGS_DATA_BUS]             regs[0:`REGS_NUM - 1];
+
 
     always @ (posedge clock) begin
         if (reset == `DISABLE && write_enable == `ENABLE && write_addr != `REGS_NUM_LOG'h0) begin

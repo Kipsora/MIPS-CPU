@@ -1,4 +1,9 @@
-openmips.bash:
-	iverilog benchmark/openmips_benchmark.v -o openmips.bash
-	vvp -n openmips.bash -lxt2
-	
+openmips_compile_run:
+	@echo "Preparing..."
+	@rm -rf .tmp
+	@mkdir .tmp
+	@echo "Compiling & Running..."
+	@iverilog openmips_benchmark.v -o .tmp/openmips.bash
+	@vvp -n .tmp/openmips.bash -lxt2 > compiler.txt
+	@echo "Remove temporary folder"
+	@rm -rf .tmp

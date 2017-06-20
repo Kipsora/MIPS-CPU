@@ -1,4 +1,4 @@
-`include "utility/utility.v"
+`include "macro.v"
 
 module pc_reg(
     input   wire                    clock,

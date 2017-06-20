@@ -1,4 +1,4 @@
-`include "utility/utility.v"
+`include "macro.v"
 `include "machine/cpu/stages/pc-reg.v"
 `include "machine/cpu/stages/if-id-buffer.v"
 `include "machine/cpu/stages/id.v"

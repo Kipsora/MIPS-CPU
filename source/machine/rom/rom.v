@@ -1,4 +1,4 @@
-`include "utility/utility.v"
+`include "macro.v"
 
 module rom(
     input   wire                    chip_enable,
@@ -8,7 +8,7 @@ module rom(
 
     reg[`INST_DATA_BUS]             memory[0:`MEMO_NUM - 1];
 
-    initial $readmemh("program.data", memory);
+    initial $readmemh("program.rom", memory);
 
     always @ (*) begin
         if (chip_enable == `DISABLE) begin
