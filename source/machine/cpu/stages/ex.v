@@ -22,7 +22,7 @@ module ex(
             logic_result <= 0;                      // FIXME: ZERO_WORD should be used here, but 0 is used
         end else begin
             case (operator)
-                `INST_ORI_OPERATOR: begin
+                `OPERATOR_OR: begin
                     logic_result <= operand1 | operand2;
                 end
                 default: begin
@@ -36,7 +36,7 @@ module ex(
         write_enable <= input_write_enable;
         write_addr <= input_write_addr;
         case (category)
-            `INST_ORI_CATEGORY: begin
+            `CATEGORY_LOGIC: begin
                 write_data <= logic_result;
             end
             default: begin

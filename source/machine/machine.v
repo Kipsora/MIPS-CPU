@@ -24,7 +24,6 @@ module machine(
         .addr(addr),
         .instruction(instruction)
     );
-    
 
     /* DEBUG AREA OUTPUT BEGIN*/
     integer idx;

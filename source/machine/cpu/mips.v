@@ -18,7 +18,6 @@ module mips(
     output  wire[`INST_ADDR_BUS]    rom_addr,
     output  wire                    rom_chip_enable
 );
-
     wire[`INST_ADDR_BUS]            if_program_counter;
 
     wire[`INST_ADDR_BUS]            id_program_counter;
