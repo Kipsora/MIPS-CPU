@@ -6,6 +6,14 @@ module id(
     input   wire[`INST_ADDR_BUS]    program_counter,
     input   wire[`INST_DATA_BUS]    instruction,
 
+    input   wire                    ex_write_enable;
+    input   wire[`REGS_ADDR_BUS]    ex_write_addr;
+    input   wire[`REGS_DATA_BUS]    ex_write_data;
+
+    input   wire                    mem_write_enable;
+    input   wire[`REGS_ADDR_BUS]    mem_write_addr;
+    input   wire[`REGS_DATA_BUS]    mem_write_data;
+
     input   wire[`REGS_DATA_BUS]    read_result1,
     input   wire[`REGS_DATA_BUS]    read_result2,
 
@@ -69,6 +77,10 @@ module id(
     always @ (*) begin
         if (reset == `ENABLE) begin
             alu_operand1 <= 0;                  // FIXME: ZERO_WORD should be applied here, but 0 is used
+        end else if (read_enable1 == `ENABLE && ex_write_enable == `ENABLE && ex_write_addr == read_addr1) begin
+            alu_operand1 <= ex_write_data;
+        end else if (read_enable1 == `ENABLE && mem_write_enable == `ENABLE && mem_write_addr == read_addr1) begin
+            alu_operand1 <= mem_write_data;
         end else if (read_enable1 == `ENABLE) begin
             alu_operand1 <= read_result1;
         end else if (read_enable1 == `DISABLE) begin
@@ -81,6 +93,10 @@ module id(
     always @ (*) begin
         if (reset == `ENABLE) begin
             alu_operand2 <= 0;                  // FIXME: ZERO_WORD should be applied here, but 0 is used
+        end else if (read_enable2 == `ENABLE && ex_write_enable == `ENABLE && ex_write_addr == read_addr2) begin
+            alu_operand2 <= ex_write_data;
+        end else if (read_enable2 == `ENABLE && mem_write_enable == `ENABLE && mem_write_addr == read_addr2) begin
+            alu_operand2 <= mem_write_data;
         end else if (read_enable2 == `ENABLE) begin
             alu_operand2 <= read_result2;
         end else if (read_enable2 == `DISABLE) begin

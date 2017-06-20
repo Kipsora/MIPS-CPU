@@ -31,6 +31,7 @@ module machine(
     initial begin
         $dumpfile("wave.lxt");
         $dumpvars(0, mips_instance);
+        $dumpvars(0, rom_instance);
         for (idx = 0; idx < 32; idx = idx + 1) begin
             $dumpvars(0, mips_instance.gpr_file_instance.regs[idx]);
         end

@@ -52,6 +52,7 @@ if __name__ == "__main__":
             data = binascii.b2a_hex(open(".tmp/program.bin", "rb").read())
             for i in xrange(len(data) >> 3):
                 writer.write(str(data[i * 8: (i + 1) * 8]) + '\n')
+        os.remove('source/program.rom')
         nowpath = os.path.abspath(os.path.curdir)
         os.chdir('source/')
         os.system('make > /dev/null')

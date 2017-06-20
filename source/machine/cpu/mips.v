@@ -13,9 +13,9 @@ module mips(
     input   wire                    clock,
     input   wire                    reset,
 
-    input   wire[`REGS_DATA_BUS]    rom_data,
+    input   wire[`INST_DATA_BUS]    rom_data,
 
-    output  wire[`REGS_DATA_BUS]    rom_addr,
+    output  wire[`INST_ADDR_BUS]    rom_addr,
     output  wire                    rom_chip_enable
 );
 
@@ -96,6 +96,12 @@ module mips(
         .reset(reset),
         .program_counter(id_program_counter),
         .instruction(id_instruction),
+        .ex_write_enable(ex_write_enable),
+        .ex_write_addr(ex_write_addr),
+        .ex_write_data(ex_write_data),
+        .mem_write_enable(mem_write_enable),
+        .mem_write_addr(mem_write_addr),
+        .mem_write_data(mem_write_data),
         .read_result1(gpr_file_read_result1),
         .read_result2(gpr_file_read_result2),
         .read_enable1(gpr_file_read_enable1),
