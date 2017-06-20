@@ -2,4 +2,8 @@
     "name": "sample", 
     "path": "sample/program.s",
     "report": "sample"
+}, {
+    "name": "forwarding", 
+    "path": "forwarding/program.s",
+    "report": "forwarding"
 }]
