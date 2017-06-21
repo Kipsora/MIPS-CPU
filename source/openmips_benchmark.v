@@ -15,7 +15,7 @@ module openmips_benchmark();
     initial begin
         reset = `ENABLE;
         #195 reset = `DISABLE;
-        #1000 $stop;
+        #5000 $stop;
     end
 
     machine machine_instance(

@@ -7,25 +7,40 @@
 `define ALU_OPERATOR_BUS 7:0
 `define ALU_CATEGORY_BUS 2:0
 
-`define CATEGORY_NOP 3'b000
-`define CATEGORY_LOGIC 3'b001
-`define CATEGORY_SHIFT 3'b010         // FIXME: defined by myself
-`define CATEGORY_MOVE 3'b011          // FIXME: defined by myself
+`define CATEGORY_NOP        3'b000
+`define CATEGORY_LOGIC      3'b001
+`define CATEGORY_SHIFT      3'b010       // FIXME: defined by myself
+`define CATEGORY_MOVE       3'b011       // FIXME: defined by myself
+`define CATEGORY_ARITHMETIC 3'b100       // FIXME: defined by myself
+`define CATEGORY_MULTIPLY   3'b101       // FIXME: defined by myself
 
-`define OPERATOR_NOP 8'b00000000      // FIXME: defined by myself
-`define OPERATOR_OR 8'b00100101       // FIXME: defined by myself
-`define OPERATOR_AND 8'b00000001      // FIXME: defined by myself
-`define OPERATOR_XOR 8'b00000010      // FIXME: defined by myself
-`define OPERATOR_NOR 8'b00000011      // FIXME: defined by myself
-`define OPERATOR_SLL 8'b00000100      // FIXME: defined by myself
-`define OPERATOR_SRL 8'b00000101      // FIXME: defined by myself
-`define OPERATOR_SRA 8'b00000110      // FIXME: defined by myself
-`define OPERATOR_MFHI 8'b00000111     // FIXME: defined by myself
-`define OPERATOR_MFLO 8'b00001000     // FIXME: defined by myself
-`define OPERATOR_MTHI 8'b00001001     // FIXME: defined by myself
-`define OPERATOR_MTLO 8'b00001010     // FIXME: defined by myself
-`define OPERATOR_MOVN 8'b00001011     // FIXME: defined by myself
-`define OPERATOR_MOVZ 8'b00001100     // FIXME: defined by myself
+`define OPERATOR_NOP   8'b00000000       // FIXME: defined by myself
+`define OPERATOR_AND   8'b00000001       // FIXME: defined by myself
+`define OPERATOR_XOR   8'b00000010       // FIXME: defined by myself
+`define OPERATOR_NOR   8'b00000011       // FIXME: defined by myself
+`define OPERATOR_SLL   8'b00000100       // FIXME: defined by myself
+`define OPERATOR_SRL   8'b00000101       // FIXME: defined by myself
+`define OPERATOR_SRA   8'b00000110       // FIXME: defined by myself
+`define OPERATOR_MFHI  8'b00000111       // FIXME: defined by myself
+`define OPERATOR_MFLO  8'b00001000       // FIXME: defined by myself
+`define OPERATOR_MTHI  8'b00001001       // FIXME: defined by myself
+`define OPERATOR_MTLO  8'b00001010       // FIXME: defined by myself
+`define OPERATOR_MOVN  8'b00001011       // FIXME: defined by myself
+`define OPERATOR_MOVZ  8'b00001100       // FIXME: defined by myself
+`define OPERATOR_SLT   8'b00001101       // FIXME: defined by myself
+`define OPERATOR_SLTU  8'b00001110       // FIXME: defined by myself
+`define OPERATOR_ADD   8'b00001111       // FIXME: defined by myself
+`define OPERATOR_ADDU  8'b00010000       // FIXME: defined by myself
+`define OPERATOR_SUB   8'b00010001       // FIXME: defined by myself
+`define OPERATOR_SUBU  8'b00010010       // FIXME: defined by myself
+`define OPERATOR_MULT  8'b00010011       // FIXME: defined by myself
+`define OPERATOR_ADDI  8'b00010100       // FIXME: defined by myself
+`define OPERATOR_ADDIU 8'b00010101       // FIXME: defined by myself
+`define OPERATOR_CLZ   8'b00010110       // FIXME: defined by myself
+`define OPERATOR_CLO   8'b00010111       // FIXME: defined by myself
+`define OPERATOR_MULTU 8'b00011000       // FIXME: defined by myself
+`define OPERATOR_MUL   8'b00011001       // FIXME: defined by myself
+`define OPERATOR_OR    8'b00100101       // FIXME: defined by myself
 
 `define INST_NOP_ID 6'b000000
 `define INST_NOP_CATEGORY `CATEGORY_NOP
@@ -119,7 +134,65 @@
 `define INST_MTLO_CATEGORY `CATEGORY_NOP
 `define INST_MTLO_OPERATOR `OPERATOR_MTLO
 
-`define INST_SPEC_ID 6'b000000
+`define INST_SLT_ID 6'b101010
+`define INST_SLT_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_SLT_OPERATOR `OPERATOR_SLT
+
+`define INST_SLTU_ID 6'b101011
+`define INST_SLTU_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_SLTU_OPERATOR `OPERATOR_SLTU
+
+`define INST_SLTI_ID 6'b001010
+`define INST_SLTI_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_SLTI_OPERATOR `OPERATOR_SLT
+
+`define INST_SLTIU_ID 6'b001011
+`define INST_SLTIU_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_SLTIU_OPERATOR `OPERATOR_SLTU
+
+`define INST_ADD_ID 6'b100000
+`define INST_ADD_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_ADD_OPERATOR `OPERATOR_ADD
+
+`define INST_ADDU_ID 6'b100001
+`define INST_ADDU_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_ADDU_OPERATOR `OPERATOR_ADDU
+
+`define INST_SUB_ID 6'b100010
+`define INST_SUB_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_SUB_OPERATOR `OPERATOR_SUB
+
+`define INST_SUBU_ID 6'b100011
+`define INST_SUBU_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_SUBU_OPERATOR `OPERATOR_SUBU
+
+`define INST_ADDI_ID 6'b001000
+`define INST_ADDI_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_ADDI_OPERATOR `OPERATOR_ADDI
+
+`define INST_ADDIU_ID 6'b001001
+`define INST_ADDIU_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_ADDIU_OPERATOR `OPERATOR_ADDIU
+
+`define INST_CLZ_ID 6'b100000
+`define INST_CLZ_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_CLZ_OPERATOR `OPERATOR_CLZ
+
+`define INST_CLO_ID 6'b100001
+`define INST_CLO_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_CLO_OPERATOR `OPERATOR_CLO
+
+`define INST_MULT_ID 6'b011000
+`define INST_MULT_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_MULT_OPERATOR `OPERATOR_MULT
+
+`define INST_MULTU_ID 6'b011001
+`define INST_MULTU_CATEGORY `CATEGORY_ARITHMETIC
+`define INST_MULTU_OPERATOR `OPERATOR_MULTU
+
+`define INST_MUL_ID 6'b000010
+`define INST_MUL_CATEGORY `CATEGORY_MULTIPLY
+`define INST_MUL_OPERATOR `OPERATOR_MUL
 
 `define INST_ADDR_BUS 31:0
 `define INST_DATA_BUS 31:0
@@ -133,4 +206,5 @@
 `define REGS_NUM_LOG 5
 `define REGS_ADDR_BUS 4:0
 `define REGS_DATA_BUS 31:0
+`define DOUBLE_REGS_DATA_BUS 63:0
 `define REGS_SIZE 5

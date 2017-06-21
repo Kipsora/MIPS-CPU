@@ -18,4 +18,8 @@
     "name": "move", 
     "path": "move/program.s",
     "report": "move"
+}, {
+    "name": "arithmetic", 
+    "path": "arithmetic/program.s",
+    "report": "arithmetic"
 }]

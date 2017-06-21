@@ -58,7 +58,7 @@ module id(
             read_addr2 <= instruction[20 : 16];
             imm <= 0;                           // FIXME: ZERO_WORD should be applied here, but 0 is used
             case (instruction[31 : 26])
-                `INST_SPEC_ID: begin
+                6'b000000: begin                // category 1: special instruction
                     if (instruction[10 : 6] == 5'b00000) begin
                         case (instruction[5 : 0])
                             `INST_OR_ID: begin
@@ -181,10 +181,105 @@ module id(
                                 read_enable2 <= `ENABLE;
                                 validality <= `VALID;
                             end
+                            `INST_SLT_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_SLT_OPERATOR;
+                                alu_category <= `INST_SLT_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_SLTU_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_SLTU_OPERATOR;
+                                alu_category <= `INST_SLTU_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_ADD_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_ADD_OPERATOR;
+                                alu_category <= `INST_ADD_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_ADDU_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_ADDU_OPERATOR;
+                                alu_category <= `INST_ADDU_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_SUB_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_SUB_OPERATOR;
+                                alu_category <= `INST_SUB_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_SUBU_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_SUBU_OPERATOR;
+                                alu_category <= `INST_SUBU_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_MULT_ID: begin // FIXME: mult has no category due to no data
+                                                 // are needed to write back
+                                $display("FUCK YOU!!!!");
+                                $display("%x", instruction);
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_MULT_OPERATOR;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_MULTU_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_MULTU_OPERATOR;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
                             default: begin
                             end
                         endcase
                     end
+                end
+                6'b011100: begin                // category 2: special instruction
+                    case (instruction[5 : 0])
+                        `INST_CLZ_ID: begin
+                            write_enable <= `ENABLE;
+                            alu_operator <= `INST_CLZ_OPERATOR;
+                            alu_category <= `INST_CLZ_CATEGORY;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `DISABLE;
+                            validality <= `VALID;
+                        end
+                        `INST_CLO_ID: begin
+                            write_enable <= `ENABLE;
+                            alu_operator <= `INST_CLO_OPERATOR;
+                            alu_category <= `INST_CLO_CATEGORY;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `DISABLE;
+                            validality <= `VALID;
+                        end
+                        `INST_MUL_ID: begin
+                            write_enable <= `ENABLE;
+                            alu_operator <= `INST_MUL_OPERATOR;
+                            alu_category <= `INST_MUL_CATEGORY;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `ENABLE;
+                            validality <= `VALID;
+                        end
+                        default: begin
+                        end
+                    endcase
                 end
                 `INST_ORI_ID: begin
                     write_enable <= `ENABLE;
@@ -232,6 +327,46 @@ module id(
                     alu_category <= `INST_PREF_CATEGORY;
                     read_enable1 <= `DISABLE;
                     read_enable2 <= `DISABLE;
+                    validality <= `VALID;
+                end
+                `INST_SLTI_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_SLTI_OPERATOR;
+                    alu_category <= `INST_SLTI_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    imm <= {{16{instruction[15]}}, instruction[15 : 0]};
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_SLTIU_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_SLTIU_OPERATOR;
+                    alu_category <= `INST_SLTIU_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    imm <= {{16{instruction[15]}}, instruction[15 : 0]};
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_ADDI_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_ADDI_OPERATOR;
+                    alu_category <= `INST_ADDI_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    imm <= {{16{instruction[15]}}, instruction[15 : 0]};
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_ADDIU_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_ADDIU_OPERATOR;
+                    alu_category <= `INST_ADDIU_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    imm <= {{16{instruction[15]}}, instruction[15 : 0]};
+                    write_addr <= instruction[20 : 16];
                     validality <= `VALID;
                 end
                 default: begin
