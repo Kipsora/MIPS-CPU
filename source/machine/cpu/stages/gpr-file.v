@@ -26,8 +26,10 @@ module gpr_file(
         end
     end
 
-    always @ (posedge clock) begin
-        if (reset == `ENABLE || read_addr1 == `REGS_NUM_LOG'h0) begin
+    always @ (*) begin
+        if (reset == `ENABLE) begin
+            read_data1 <= 0; // FIXME: Zero word should be used here, but 0 is used, check it later.
+        end else if (read_addr1 == `REGS_NUM_LOG'h0) begin
             read_data1 <= 0; // FIXME: Zero word should be used here, but 0 is used, check it later.
         end else if (write_enable == `ENABLE && read_enable1 == `ENABLE && read_addr1 == write_addr) begin
             read_data1 <= write_data;
@@ -38,8 +40,10 @@ module gpr_file(
         end
     end
 
-    always @ (posedge clock) begin
-        if (reset == `ENABLE || read_addr2 == `REGS_NUM_LOG'h0) begin
+    always @ (*) begin
+        if (reset == `ENABLE) begin
+            read_data2 <= 0; // FIXME: Zero word should be used here, but 0 is used, check it later.
+        end else if (read_addr2 == `REGS_NUM_LOG'h0) begin
             read_data2 <= 0; // FIXME: Zero word should be used here, but 0 is used, check it later.
         end else if (write_enable == `ENABLE && read_enable2 == `ENABLE && read_addr2 == write_addr) begin
             read_data2 <= write_data;

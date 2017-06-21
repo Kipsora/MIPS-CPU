@@ -6,4 +6,12 @@
     "name": "forwarding", 
     "path": "forwarding/program.s",
     "report": "forwarding"
+}, {
+    "name": "logic", 
+    "path": "logic/program.s",
+    "report": "logic"
+}, {
+    "name": "shift", 
+    "path": "shift/program.s",
+    "report": "shift"
 }]
