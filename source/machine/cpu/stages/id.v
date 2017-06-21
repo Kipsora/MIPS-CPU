@@ -125,6 +125,62 @@ module id(
                                 read_enable2 <= `ENABLE;
                                 validality <= `VALID;
                             end
+                            `INST_MFHI_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_MFHI_OPERATOR;
+                                alu_category <= `INST_MFHI_CATEGORY;
+                                read_enable1 <= `DISABLE;
+                                read_enable2 <= `DISABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_MFLO_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_MFLO_OPERATOR;
+                                alu_category <= `INST_MFLO_CATEGORY;
+                                read_enable1 <= `DISABLE;
+                                read_enable2 <= `DISABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_MTHI_ID: begin // FIXME: due to no data being written to gpr-file, 
+                                                 //        thus alu_category <= `INST_MTHI_CATEGORY is not needed.
+                                write_enable <= `DISABLE;
+                                alu_operator <= `INST_MTHI_OPERATOR;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `DISABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_MTLO_ID: begin // FIXME: due to no data being written to gpr-file, 
+                                                 //        thus alu_category <= `INST_MTHI_CATEGORY is not needed.
+                                write_enable <= `DISABLE;
+                                alu_operator <= `INST_MTLO_OPERATOR;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `DISABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_MOVN_ID: begin
+                                if (alu_operand2 != 0) begin // FIXME: 0 is used here, but `ZERO_WORD is expected
+                                    write_enable <= `ENABLE;
+                                end else begin
+                                    write_enable <= `DISABLE;
+                                end
+                                alu_operator <= `INST_MOVN_OPERATOR;
+                                alu_category <= `INST_MOVN_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_MOVZ_ID: begin
+                                if (alu_operand2 == 0) begin // FIXME: 0 is used here, but `ZERO_WORD is expected
+                                    write_enable <= `ENABLE;
+                                end else begin
+                                    write_enable <= `DISABLE;
+                                end
+                                alu_operator <= `INST_MOVZ_OPERATOR;
+                                alu_category <= `INST_MOVZ_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
                             default: begin
                             end
                         endcase

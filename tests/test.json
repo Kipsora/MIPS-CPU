@@ -14,4 +14,8 @@
     "name": "shift", 
     "path": "shift/program.s",
     "report": "shift"
+}, {
+    "name": "move", 
+    "path": "move/program.s",
+    "report": "move"
 }]

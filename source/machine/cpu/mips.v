@@ -2,7 +2,8 @@
 `include "machine/cpu/stages/pc-reg.v"
 `include "machine/cpu/stages/if-id-buffer.v"
 `include "machine/cpu/stages/id.v"
-`include "machine/cpu/stages/gpr-file.v"
+`include "machine/cpu/regfile/gpr-file.v"
+`include "machine/cpu/regfile/hilo-file.v"
 `include "machine/cpu/stages/id-ex-buffer.v"
 `include "machine/cpu/stages/ex.v"
 `include "machine/cpu/stages/ex-mem-buffer.v"
@@ -39,18 +40,30 @@ module mips(
     wire                            ex_write_enable;
     wire[`REGS_ADDR_BUS]            ex_write_addr;
     wire[`REGS_DATA_BUS]            ex_write_data;
+    wire                            ex_write_hilo_enable;
+    wire[`REGS_DATA_BUS]            ex_write_hi_data;
+    wire[`REGS_DATA_BUS]            ex_write_lo_data;
 
     wire                            ex_mem_buffer_write_enable;
     wire[`REGS_ADDR_BUS]            ex_mem_buffer_write_addr;
     wire[`REGS_DATA_BUS]            ex_mem_buffer_write_data;
+    wire                            ex_mem_buffer_write_hilo_enable;
+    wire[`REGS_DATA_BUS]            ex_mem_buffer_write_hi_data;
+    wire[`REGS_DATA_BUS]            ex_mem_buffer_write_lo_data;
 
     wire                            mem_write_enable;
     wire[`REGS_ADDR_BUS]            mem_write_addr;
     wire[`REGS_DATA_BUS]            mem_write_data;
+    wire                            mem_write_hilo_enable;
+    wire[`REGS_DATA_BUS]            mem_write_hi_data;
+    wire[`REGS_DATA_BUS]            mem_write_lo_data;
 
     wire                            mem_wb_buffer_write_enable;
     wire[`REGS_ADDR_BUS]            mem_wb_buffer_write_addr;
     wire[`REGS_DATA_BUS]            mem_wb_buffer_write_data;
+    wire                            mem_wb_buffer_write_hilo_enable;
+    wire[`REGS_DATA_BUS]            mem_wb_buffer_write_hi_data;
+    wire[`REGS_DATA_BUS]            mem_wb_buffer_write_lo_data;
 
     wire                            gpr_file_read_enable1;
     wire                            gpr_file_read_enable2;
@@ -58,6 +71,9 @@ module mips(
     wire[`REGS_ADDR_BUS]            gpr_file_read_addr2;
     wire[`REGS_DATA_BUS]            gpr_file_read_result1;
     wire[`REGS_DATA_BUS]            gpr_file_read_result2;
+
+    wire[`REGS_DATA_BUS]            hilo_file_hi_data;
+    wire[`REGS_DATA_BUS]            hilo_file_lo_data;
 
     pc_reg                          pc_reg_instance(
         .clock(clock), 
@@ -89,6 +105,16 @@ module mips(
         .read_enable2(gpr_file_read_enable2),
         .read_addr2(gpr_file_read_addr2),
         .read_data2(gpr_file_read_result2)
+    );
+
+    hilo_file                       hilo_file_instance(
+        .clock(clock),
+        .reset(reset),
+        .write_hilo_enable(mem_wb_buffer_write_hilo_enable),
+        .write_hi_data(mem_wb_buffer_write_hi_data),
+        .write_lo_data(mem_wb_buffer_write_lo_data),
+        .hi_data(hilo_file_hi_data),
+        .lo_data(hilo_file_lo_data)
     );
 
     id                              id_instance(
@@ -134,12 +160,23 @@ module mips(
 
     ex                              ex_instance(
         .reset(reset),
+        .operand_hi(hilo_file_hi_data),
+        .operand_lo(hilo_file_lo_data),
+        .wb_write_hilo_enable(mem_wb_buffer_write_hilo_enable),
+        .wb_write_hi_data(mem_wb_buffer_write_hi_data),
+        .wb_write_lo_data(mem_wb_buffer_write_lo_data),
+        .mem_write_hilo_enable(mem_write_hilo_enable),
+        .mem_write_hi_data(mem_write_hi_data),
+        .mem_write_lo_data(mem_write_lo_data),
         .operator(id_ex_buffer_alu_operator),
         .category(id_ex_buffer_alu_category),
         .operand1(id_ex_buffer_alu_operand1),
         .operand2(id_ex_buffer_alu_operand2),
         .input_write_addr(id_ex_buffer_write_addr),
         .input_write_enable(id_ex_buffer_write_enable),
+        .write_hilo_enable(ex_write_hilo_enable),
+        .write_hi_data(ex_write_hi_data),
+        .write_lo_data(ex_write_lo_data),
         .write_addr(ex_write_addr),
         .write_enable(ex_write_enable),
         .write_data(ex_write_data)
@@ -151,9 +188,15 @@ module mips(
         .ex_write_enable(ex_write_enable),
         .ex_write_addr(ex_write_addr),
         .ex_write_data(ex_write_data),
+        .ex_write_hilo_enable(ex_write_hilo_enable),
+        .ex_write_hi_data(ex_write_hi_data),
+        .ex_write_lo_data(ex_write_lo_data),
         .mem_write_enable(ex_mem_buffer_write_enable),
         .mem_write_addr(ex_mem_buffer_write_addr),
-        .mem_write_data(ex_mem_buffer_write_data)
+        .mem_write_data(ex_mem_buffer_write_data),
+        .mem_write_hilo_enable(ex_mem_buffer_write_hilo_enable),
+        .mem_write_hi_data(ex_mem_buffer_write_hi_data),
+        .mem_write_lo_data(ex_mem_buffer_write_lo_data)
     );
 
     mem                             mem_instance(
@@ -161,9 +204,15 @@ module mips(
         .input_write_enable(ex_mem_buffer_write_enable),
         .input_write_addr(ex_mem_buffer_write_addr),
         .input_write_data(ex_mem_buffer_write_data),
+        .input_write_hilo_enable(ex_mem_buffer_write_hilo_enable),
+        .input_write_hi_data(ex_mem_buffer_write_hi_data),
+        .input_write_lo_data(ex_mem_buffer_write_lo_data),
         .write_enable(mem_write_enable),
         .write_addr(mem_write_addr),
-        .write_data(mem_write_data)
+        .write_data(mem_write_data),
+        .write_hilo_enable(mem_write_hilo_enable),
+        .write_hi_data(mem_write_hi_data),
+        .write_lo_data(mem_write_lo_data)
     );
 
     mem_wb_buffer                   mem_wb_buffer_instance(
@@ -172,9 +221,15 @@ module mips(
         .mem_write_enable(mem_write_enable),
         .mem_write_addr(mem_write_addr),
         .mem_write_data(mem_write_data),
+        .mem_write_hilo_enable(mem_write_hilo_enable),
+        .mem_write_hi_data(mem_write_hi_data),
+        .mem_write_lo_data(mem_write_lo_data),
         .wb_write_enable(mem_wb_buffer_write_enable),
         .wb_write_addr(mem_wb_buffer_write_addr),
-        .wb_write_data(mem_wb_buffer_write_data)
+        .wb_write_data(mem_wb_buffer_write_data),
+        .wb_write_hilo_enable(mem_wb_buffer_write_hilo_enable),
+        .wb_write_hi_data(mem_wb_buffer_write_hi_data),
+        .wb_write_lo_data(mem_wb_buffer_write_lo_data)
     );
 
 endmodule // mips
