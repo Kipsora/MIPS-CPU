@@ -17,6 +17,10 @@ module ex_mem_buffer(
     input   wire[`DOUBLE_REGS_DATA_BUS] ex_current_result,
     input   wire[`CYCLE_BUS]            ex_current_cycle,
 
+    input   wire[`ALU_OPERATOR_BUS]     ex_alu_operator,
+    input   wire[`REGS_DATA_BUS]        ex_alu_operand2,
+    input   wire[`REGS_DATA_BUS]        ex_ram_addr,
+
     output  reg                         mem_write_enable,
     output  reg[`REGS_ADDR_BUS]         mem_write_addr,
     output  reg[`REGS_DATA_BUS]         mem_write_data,
@@ -26,7 +30,11 @@ module ex_mem_buffer(
     output  reg[`REGS_DATA_BUS]         mem_write_lo_data,
 
     output  reg[`DOUBLE_REGS_DATA_BUS]  mem_last_result,
-    output  reg[`CYCLE_BUS]             mem_last_cycle
+    output  reg[`CYCLE_BUS]             mem_last_cycle,
+
+    output  reg[`ALU_OPERATOR_BUS]      mem_alu_operator,
+    output  reg[`REGS_DATA_BUS]         mem_alu_operand2,
+    output  reg[`REGS_DATA_BUS]         mem_ram_addr
 );
 
     always @ (posedge clock) begin
@@ -39,6 +47,9 @@ module ex_mem_buffer(
             mem_write_lo_data <= 0;            // FIXME: ZERO_WORD should be used here, but 0 is used
             mem_last_result <= 0;              // FIXME: {`ZERO_WORD, `ZEROWORD} should be used here, but 0 is used
             mem_last_cycle <= 0;               // FIXME: 2'b00 should be used here, but 0 is used
+            mem_alu_operator <= 0;             // FIXME: EXE_NOP_OP should be used here, but 0 is used
+            mem_alu_operand2 <= 0;             // FIXME: ZERO_WORD should be used here, but 0 is used
+            mem_ram_addr <= 0;                 // FIXME: ZERO_WORD should be used here, but 0 is used
         end if (stall[3] == `ENABLE && stall[4] == `DISABLE) begin
             mem_write_enable <= `DISABLE;
             mem_write_data <= 0;               // FIXME: ZERO_WORD should be used here, but 0 is used
@@ -48,6 +59,9 @@ module ex_mem_buffer(
             mem_write_lo_data <= 0;            // FIXME: ZERO_WORD should be used here, but 0 is used
             mem_last_result <= ex_current_result;
             mem_last_cycle <= ex_current_cycle;
+            mem_alu_operator <= 0;             // FIXME: EXE_NOP_OP should be used here, but 0 is used
+            mem_alu_operand2 <= 0;             // FIXME: ZERO_WORD should be used here, but 0 is used
+            mem_ram_addr <= 0;                 // FIXME: ZERO_WORD should be used here, but 0 is used
         end else if (stall[3] == `DISABLE) begin
             mem_write_enable <= ex_write_enable;
             mem_write_addr <= ex_write_addr;
@@ -57,6 +71,9 @@ module ex_mem_buffer(
             mem_write_lo_data <= ex_write_lo_data;
             mem_last_result <= 0;              // FIXME: {`ZERO_WORD, `ZEROWORD} should be used here, but 0 is used
             mem_last_cycle <= 0;               // FIXME: 2'b00 should be used here, but 0 is used
+            mem_alu_operator <= ex_alu_operator;
+            mem_alu_operand2 <= ex_alu_operand2;
+            mem_ram_addr <= ex_ram_addr;
         end else begin
             mem_last_result <= ex_current_result;
             mem_last_cycle <= ex_current_cycle;

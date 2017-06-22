@@ -30,6 +30,8 @@ module ex(
     input   wire[`REGS_DATA_BUS]        return_target,
     input   wire                        is_curr_in_delayslot,
 
+    input   wire[`REGS_DATA_BUS]        instruction,
+
     output  reg[`REGS_DATA_BUS]         to_div_operand1,
     output  reg[`REGS_DATA_BUS]         to_div_operand2,
     output  reg                         to_div_is_start,
@@ -46,8 +48,16 @@ module ex(
     output  reg[`DOUBLE_REGS_DATA_BUS]  current_result,
     output  reg[`CYCLE_BUS]             current_cycle,
 
-    output  reg                         stall_signal
+    output  reg                         stall_signal,
+
+    output  wire[`ALU_OPERATOR_BUS]     broadcast_alu_operator,
+    output  wire[`REGS_DATA_BUS]        broadcast_alu_operand2,
+    output  wire[`REGS_DATA_BUS]        broadcast_ram_addr
 );
+
+    assign broadcast_alu_operator = operator;
+    assign broadcast_alu_operand2 = operand2;
+    assign broadcast_ram_addr = operand1 + {{16{instruction[15]}}, instruction[15 : 0]};
 
     reg[`REGS_DATA_BUS]                 logic_result;
     reg[`REGS_DATA_BUS]                 shift_result;

@@ -48,4 +48,9 @@
     "path": "fork/program2.s",
     "report": "fork2",
     "polish": false
+}, {
+    "name": "ramio", 
+    "path": "ramio/program.s",
+    "report": "ramio",
+    "polish": false
 }]

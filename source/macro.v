@@ -4,6 +4,8 @@
 `define INVALID 1'b0
 `define TRUE 1'b1
 `define FALSE 1'b0
+`define RAM_READ 1'b0
+`define RAM_WRITE 1'b1
 
 /* Definition with instructions */
 `define ALU_OPERATOR_BUS 7:0
@@ -16,6 +18,7 @@
 `define CATEGORY_ARITHMETIC 3'b100       // FIXME: defined by myself
 `define CATEGORY_MULTIPLY   3'b101       // FIXME: defined by myself
 `define CATEGORY_FORK       3'b110       // FIXME: defined by myself
+`define CATEGORY_MEMIO      3'b111       // FIXME: defined by myself
 
 `define OPERATOR_NOP   8'b00000000       // FIXME: defined by myself
 `define OPERATOR_AND   8'b00000001       // FIXME: defined by myself
@@ -62,6 +65,18 @@
 `define OPERATOR_BLTZ 8'b00101010        // FIXME: defined by myself
 `define OPERATOR_BLTZAL 8'b00101011      // FIXME: defined by myself
 `define OPERATOR_BNE  8'b00101100        // FIXME: defined by myself
+`define OPERATOR_LB    8'b00101101        // FIXME: defined by myself
+`define OPERATOR_LBU   8'b00101110        // FIXME: defined by myself
+`define OPERATOR_LH    8'b00101111        // FIXME: defined by myself
+`define OPERATOR_LHU   8'b00110000        // FIXME: defined by myself
+`define OPERATOR_LW    8'b00110001        // FIXME: defined by myself
+`define OPERATOR_LWL   8'b00110010        // FIXME: defined by myself
+`define OPERATOR_LWR   8'b00110011        // FIXME: defined by myself
+`define OPERATOR_SB    8'b00110100        // FIXME: defined by myself
+`define OPERATOR_SH    8'b00110101        // FIXME: defined by myself
+`define OPERATOR_SW    8'b00110110        // FIXME: defined by myself
+`define OPERATOR_SWL   8'b00110111        // FIXME: defined by myself
+`define OPERATOR_SWR   8'b00111000        // FIXME: defined by myself
 
 `define INST_NOP_ID 6'b000000
 `define INST_NOP_CATEGORY `CATEGORY_NOP
@@ -287,12 +302,62 @@
 `define INST_BNE_CATEGORY `CATEGORY_FORK
 `define INST_BNE_OPERATOR `OPERATOR_BNE
 
+`define INST_LB_ID 6'b100000
+`define INST_LB_CATEGORY `CATEGORY_MEMIO
+`define INST_LB_OPERATOR `OPERATOR_LB
+
+`define INST_LBU_ID 6'b100100
+`define INST_LBU_CATEGORY `CATEGORY_MEMIO
+`define INST_LBU_OPERATOR `OPERATOR_LBU
+
+`define INST_LH_ID 6'b100001
+`define INST_LH_CATEGORY `CATEGORY_MEMIO
+`define INST_LH_OPERATOR `OPERATOR_LH
+
+`define INST_LHU_ID 6'b100101
+`define INST_LHU_CATEGORY `CATEGORY_MEMIO
+`define INST_LHU_OPERATOR `OPERATOR_LHU
+
+`define INST_LW_ID 6'b100011
+`define INST_LW_CATEGORY `CATEGORY_MEMIO
+`define INST_LW_OPERATOR `OPERATOR_LW
+
+`define INST_LWL_ID 6'b100010
+`define INST_LWL_CATEGORY `CATEGORY_MEMIO
+`define INST_LWL_OPERATOR `OPERATOR_LWL
+
+`define INST_LWR_ID 6'b100110
+`define INST_LWR_CATEGORY `CATEGORY_MEMIO
+`define INST_LWR_OPERATOR `OPERATOR_LWR
+
+`define INST_SB_ID 6'b101000
+`define INST_SB_CATEGORY `CATEGORY_MEMIO
+`define INST_SB_OPERATOR `OPERATOR_SB
+
+`define INST_SH_ID 6'b101001
+`define INST_SH_CATEGORY `CATEGORY_MEMIO
+`define INST_SH_OPERATOR `OPERATOR_SH
+
+`define INST_SW_ID 6'b101011
+`define INST_SW_CATEGORY `CATEGORY_MEMIO
+`define INST_SW_OPERATOR `OPERATOR_SW
+
+`define INST_SWL_ID 6'b101010
+`define INST_SWL_CATEGORY `CATEGORY_MEMIO
+`define INST_SWL_OPERATOR `OPERATOR_SWL
+
+`define INST_SWR_ID 6'b101110
+`define INST_SWR_CATEGORY `CATEGORY_MEMIO
+`define INST_SWR_OPERATOR `OPERATOR_SWR
+
 `define INST_ADDR_BUS 31:0
 `define INST_DATA_BUS 31:0
 
 /* Definition with ROM */
 `define MEMO_NUM 128
 `define MEMO_NUM_LOG 7
+`define RAM_NUM 128
+`define RAM_NUM_LOG 7
 
 /* Definition with register file */
 `define REGS_NUM 32
@@ -302,11 +367,13 @@
 `define EXT_REGS_DATA_BUS 32:0
 `define DOUBLE_REGS_DATA_BUS 63:0
 `define EXT_DOUBLE_REGS_DATA_BUS 64:0
+`define BYTE_WIDTH 7:0
 `define REGS_SIZE 5
 
 /* Difinition with signal bus */
 `define SIGNAL_BUS 5:0
 `define CYCLE_BUS 1:0
+`define BYTE_SEL_BUS 3:0
 
 /* Definition with constants in div module */
 `define DIV_FREE 2'b00

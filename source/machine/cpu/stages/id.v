@@ -19,6 +19,10 @@ module id(
 
     input   wire                        input_is_curr_in_delayslot,
 
+    input   wire[`ALU_OPERATOR_BUS]     ex_alu_operator,
+
+    output  wire[`REGS_DATA_BUS]        broadcast_instruction,
+
     output  reg                         is_curr_in_delayslot,
     output  reg                         is_next_in_delayslot,
     output  reg                         branch_signal,
@@ -41,6 +45,17 @@ module id(
     output  wire                        stall_signal
 );
 
+    assign broadcast_instruction = instruction;
+
+    reg                                 stall_signal_from_reg1_load_relate;
+    reg                                 stall_signal_from_reg2_load_relate;
+    wire                                pre_inst_is_load;
+
+    assign pre_inst_is_load = (ex_alu_operator == `OPERATOR_LB || ex_alu_operator == `OPERATOR_LBU
+            || ex_alu_operator == `OPERATOR_LH || ex_alu_operator == `OPERATOR_LHU
+            || ex_alu_operator == `OPERATOR_LW || ex_alu_operator == `OPERATOR_LWR
+            || ex_alu_operator == `OPERATOR_LWL) ? `TRUE : `FALSE;
+
     reg[`REGS_DATA_BUS]                 imm;
     reg                                 validality;
 
@@ -53,8 +68,6 @@ module id(
     assign pc_plus_4 = program_counter + 4;
 
     assign imm_sll2_signed_next = {{14{instruction[15]}}, instruction[15 : 0], 2'b00};
-
-    assign stall_signal = `DISABLE;
 
     always @ (*) begin
         if (reset == `ENABLE) begin
@@ -445,6 +458,109 @@ module id(
                         end
                     endcase
                 end
+                `INST_LB_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_LB_OPERATOR;
+                    alu_category <= `INST_LB_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_LBU_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_LBU_OPERATOR;
+                    alu_category <= `INST_LBU_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_LH_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_LH_OPERATOR;
+                    alu_category <= `INST_LH_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_LHU_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_LHU_OPERATOR;
+                    alu_category <= `INST_LHU_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_LW_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_LW_OPERATOR;
+                    alu_category <= `INST_LW_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_LWL_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_LWL_OPERATOR;
+                    alu_category <= `INST_LWL_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_LWR_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_LWR_OPERATOR;
+                    alu_category <= `INST_LWR_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    write_addr <= instruction[20 : 16];
+                    validality <= `VALID;
+                end
+                `INST_SB_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_SB_OPERATOR;
+                    alu_category <= `INST_SB_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    validality <= `VALID;
+                end
+                `INST_SH_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_SH_OPERATOR;
+                    alu_category <= `INST_SH_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    validality <= `VALID;
+                end
+                `INST_SW_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_SW_OPERATOR;
+                    alu_category <= `INST_SW_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    validality <= `VALID;
+                end
+                `INST_SWL_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_SWL_OPERATOR;
+                    alu_category <= `INST_SWL_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    validality <= `VALID;
+                end
+                `INST_SWR_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_SWR_OPERATOR;
+                    alu_category <= `INST_SWR_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    validality <= `VALID;
+                end
                 `INST_J_ID: begin
                     write_enable <= `DISABLE;
                     alu_operator <= `INST_J_OPERATOR;
@@ -659,8 +775,11 @@ module id(
     end
 
     always @ (*) begin
+        stall_signal_from_reg1_load_relate <= `DISABLE;
         if (reset == `ENABLE) begin
             alu_operand1 <= 0;                  // FIXME: ZERO_WORD should be applied here, but 0 is used
+        end else if (pre_inst_is_load && ex_write_addr == read_addr1 && read_enable1) begin
+            stall_signal_from_reg1_load_relate <= `ENABLE;
         end else if (read_enable1 == `ENABLE && ex_write_enable == `ENABLE && ex_write_addr == read_addr1) begin
             alu_operand1 <= ex_write_data;
         end else if (read_enable1 == `ENABLE && mem_write_enable == `ENABLE && mem_write_addr == read_addr1) begin
@@ -675,8 +794,11 @@ module id(
     end
 
     always @ (*) begin
+        stall_signal_from_reg2_load_relate <= `DISABLE;
         if (reset == `ENABLE) begin
             alu_operand2 <= 0;                  // FIXME: ZERO_WORD should be applied here, but 0 is used
+        end else if (pre_inst_is_load && ex_write_addr == read_addr2 && read_enable2) begin
+            stall_signal_from_reg2_load_relate <= `ENABLE;
         end else if (read_enable2 == `ENABLE && ex_write_enable == `ENABLE && ex_write_addr == read_addr2) begin
             alu_operand2 <= ex_write_data;
         end else if (read_enable2 == `ENABLE && mem_write_enable == `ENABLE && mem_write_addr == read_addr2) begin
@@ -689,5 +811,7 @@ module id(
             alu_operand2 <= 0;                  // FIXME: ZERO_WORD should be applied here, but 0 is used
         end
     end
+
+    assign stall_signal = stall_signal_from_reg1_load_relate || stall_signal_from_reg2_load_relate;
 
 endmodule // id

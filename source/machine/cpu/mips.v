@@ -18,19 +18,29 @@ module mips(
 
     input   wire[`INST_DATA_BUS]        rom_data,
 
+    input   wire[`INST_DATA_BUS]        ram_read_data,
+
     output  wire[`INST_ADDR_BUS]        rom_addr,
-    output  wire                        rom_chip_enable
+    output  wire                        rom_chip_enable,
+
+    output  wire                        ram_operation,
+    output  wire[`BYTE_SEL_BUS]         ram_select_signal,
+    output  wire[`INST_ADDR_BUS]        ram_addr,
+    output  wire[`INST_DATA_BUS]        ram_write_data,
+    output  wire                        ram_chip_enable
 );
     wire[`INST_ADDR_BUS]                if_program_counter;
 
-    wire[`INST_ADDR_BUS]                id_program_counter;
-    wire[`INST_DATA_BUS]                id_instruction;
+    wire[`INST_ADDR_BUS]                if_id_program_counter;
+    wire[`INST_DATA_BUS]                if_id_instruction;
+
     wire[`ALU_OPERATOR_BUS]             id_alu_operator;
     wire[`ALU_CATEGORY_BUS]             id_alu_category;
     wire[`REGS_DATA_BUS]                id_alu_operand1;
     wire[`REGS_DATA_BUS]                id_alu_operand2;
     wire                                id_write_enable;
     wire[`REGS_ADDR_BUS]                id_write_addr;
+    wire[`INST_DATA_BUS]                id_instruction;
 
     wire[`ALU_OPERATOR_BUS]             id_ex_buffer_alu_operator;
     wire[`ALU_CATEGORY_BUS]             id_ex_buffer_alu_category;
@@ -38,6 +48,7 @@ module mips(
     wire[`REGS_DATA_BUS]                id_ex_buffer_alu_operand2;
     wire                                id_ex_buffer_write_enable;
     wire[`REGS_ADDR_BUS]                id_ex_buffer_write_addr;
+    wire[`INST_DATA_BUS]                id_ex_instruction;
 
     wire                                ex_write_enable;
     wire[`REGS_ADDR_BUS]                ex_write_addr;
@@ -49,6 +60,9 @@ module mips(
     wire[`REGS_DATA_BUS]                ex_to_div_operand2;
     wire                                ex_to_div_is_start;
     wire                                ex_to_div_is_signed;
+    wire[`ALU_OPERATOR_BUS]             ex_alu_operator;
+    wire[`REGS_DATA_BUS]                ex_alu_operand2;
+    wire[`REGS_DATA_BUS]                ex_ram_addr;
 
     wire[`DOUBLE_REGS_DATA_BUS]         ex_div_result;
     wire                                ex_div_is_ended;
@@ -59,6 +73,11 @@ module mips(
     wire                                ex_mem_buffer_write_hilo_enable;
     wire[`REGS_DATA_BUS]                ex_mem_buffer_write_hi_data;
     wire[`REGS_DATA_BUS]                ex_mem_buffer_write_lo_data;
+    wire[`DOUBLE_REGS_DATA_BUS]         ex_mem_last_result;
+    wire[`CYCLE_BUS]                    ex_mem_last_cycle;
+    wire[`ALU_OPERATOR_BUS]             ex_mem_alu_operator;
+    wire[`REGS_DATA_BUS]                ex_mem_alu_operand2;
+    wire[`REGS_DATA_BUS]                ex_mem_ram_addr;
 
     wire                                mem_write_enable;
     wire[`REGS_ADDR_BUS]                mem_write_addr;
@@ -90,8 +109,6 @@ module mips(
 
     wire[`DOUBLE_REGS_DATA_BUS]         ex_current_result;
     wire[`CYCLE_BUS]                    ex_current_cycle;
-    wire[`DOUBLE_REGS_DATA_BUS]         ex_mem_last_result;
-    wire[`CYCLE_BUS]                    ex_mem_last_cycle;
 
     wire                                curr_next_is_in_delayslot_connector;
     wire                                id_is_curr_in_delayslot;
@@ -127,8 +144,8 @@ module mips(
         .stall(stall_signal),
         .if_program_counter(if_program_counter),
         .if_instruction(rom_data),
-        .id_program_counter(id_program_counter),
-        .id_instruction(id_instruction)
+        .id_program_counter(if_id_program_counter),
+        .id_instruction(if_id_instruction)
     );
 
     gpr_file                            gpr_file_instance(
@@ -157,8 +174,8 @@ module mips(
 
     id                                  id_instance(
         .reset(reset),
-        .program_counter(id_program_counter),
-        .instruction(id_instruction),
+        .program_counter(if_id_program_counter),
+        .instruction(if_id_instruction),
         .ex_write_enable(ex_write_enable),
         .ex_write_addr(ex_write_addr),
         .ex_write_data(ex_write_data),
@@ -168,6 +185,8 @@ module mips(
         .read_result1(gpr_file_read_result1),
         .read_result2(gpr_file_read_result2),
         .input_is_curr_in_delayslot(curr_next_is_in_delayslot_connector),
+        .ex_alu_operator(ex_alu_operator),
+        .broadcast_instruction(id_instruction),
         .is_curr_in_delayslot(id_is_curr_in_delayslot),
         .is_next_in_delayslot(id_is_next_in_delayslot),
         .branch_signal(id_branch_signal),
@@ -199,6 +218,7 @@ module mips(
         .id_return_target(id_return_target),
         .id_is_curr_in_delayslot(id_is_curr_in_delayslot),
         .input_is_next_in_delayslot(id_is_next_in_delayslot),
+        .id_instruction(id_instruction),
         .ex_operator(id_ex_buffer_alu_operator),
         .ex_category(id_ex_buffer_alu_category),
         .ex_operand1(id_ex_buffer_alu_operand1),
@@ -207,7 +227,8 @@ module mips(
         .ex_write_enable(id_ex_buffer_write_enable),
         .ex_return_target(id_ex_return_target),
         .ex_is_curr_in_delayslot(id_ex_is_curr_in_delayslot),
-        .is_curr_in_delayslot(curr_next_is_in_delayslot_connector)
+        .is_curr_in_delayslot(curr_next_is_in_delayslot_connector),
+        .ex_instruction(id_ex_instruction)
     );
 
     ex                                  ex_instance(
@@ -232,6 +253,7 @@ module mips(
         .last_cycle(ex_mem_last_cycle),
         .return_target(id_ex_return_target),
         .is_curr_in_delayslot(id_ex_is_curr_in_delayslot),
+        .instruction(id_ex_instruction),
         .to_div_operand1(ex_to_div_operand1),
         .to_div_operand2(ex_to_div_operand2),
         .to_div_is_start(ex_to_div_is_start),
@@ -244,7 +266,10 @@ module mips(
         .write_data(ex_write_data),
         .current_result(ex_current_result),
         .current_cycle(ex_current_cycle),
-        .stall_signal(stall_from_ex)
+        .stall_signal(stall_from_ex),
+        .broadcast_alu_operator(ex_alu_operator),
+        .broadcast_alu_operand2(ex_alu_operand2),
+        .broadcast_ram_addr(ex_ram_addr)
     );
 
     ex_div                              ex_div_instance(
@@ -271,6 +296,9 @@ module mips(
         .ex_write_lo_data(ex_write_lo_data),
         .ex_current_result(ex_current_result),
         .ex_current_cycle(ex_current_cycle),
+        .ex_alu_operator(ex_alu_operator),
+        .ex_alu_operand2(ex_alu_operand2),
+        .ex_ram_addr(ex_ram_addr),
         .mem_write_enable(ex_mem_buffer_write_enable),
         .mem_write_addr(ex_mem_buffer_write_addr),
         .mem_write_data(ex_mem_buffer_write_data),
@@ -278,7 +306,10 @@ module mips(
         .mem_write_hi_data(ex_mem_buffer_write_hi_data),
         .mem_write_lo_data(ex_mem_buffer_write_lo_data),
         .mem_last_result(ex_mem_last_result),
-        .mem_last_cycle(ex_mem_last_cycle)
+        .mem_last_cycle(ex_mem_last_cycle),
+        .mem_alu_operator(ex_mem_alu_operator),
+        .mem_alu_operand2(ex_mem_alu_operand2),
+        .mem_ram_addr(ex_mem_ram_addr)
     );
 
     mem                                 mem_instance(
@@ -289,12 +320,21 @@ module mips(
         .input_write_hilo_enable(ex_mem_buffer_write_hilo_enable),
         .input_write_hi_data(ex_mem_buffer_write_hi_data),
         .input_write_lo_data(ex_mem_buffer_write_lo_data),
+        .input_alu_operator(ex_mem_alu_operator),
+        .input_alu_operand2(ex_mem_alu_operand2),
+        .input_ram_addr(ex_mem_ram_addr),
+        .input_ram_read_data(ram_read_data),
         .write_enable(mem_write_enable),
         .write_addr(mem_write_addr),
         .write_data(mem_write_data),
         .write_hilo_enable(mem_write_hilo_enable),
         .write_hi_data(mem_write_hi_data),
-        .write_lo_data(mem_write_lo_data)
+        .write_lo_data(mem_write_lo_data),
+        .ram_addr(ram_addr),
+        .ram_operation(ram_operation),
+        .ram_select_signal(ram_select_signal),
+        .ram_write_data(ram_write_data),
+        .ram_chip_enable(ram_chip_enable)
     );
 
     mem_wb_buffer                       mem_wb_buffer_instance(
