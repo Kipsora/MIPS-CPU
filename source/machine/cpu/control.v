@@ -1,10 +1,10 @@
 `include "macro.v"
 
 module control(
-    input   wire                    reset,
-    input   wire                    stall_from_id,
-    input   wire                    stall_from_ex,
-    output  reg[`SIGNAL_BUS]        stall
+    input   wire                        reset,
+    input   wire                        stall_from_id,
+    input   wire                        stall_from_ex,
+    output  reg[`SIGNAL_BUS]            stall
 );
 
     always @ (*) begin

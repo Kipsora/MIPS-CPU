@@ -1,24 +1,24 @@
 `include "macro.v"
 
 module id_ex_buffer(
-    input   wire                    clock,
-    input   wire                    reset,
+    input   wire                        clock,
+    input   wire                        reset,
 
-    input   wire[`SIGNAL_BUS]       stall,
+    input   wire[`SIGNAL_BUS]           stall,
 
-    input   wire[`ALU_OPERATOR_BUS] id_operator,
-    input   wire[`ALU_CATEGORY_BUS] id_category,
-    input   wire[`REGS_DATA_BUS]    id_operand1,
-    input   wire[`REGS_DATA_BUS]    id_operand2,
-    input   wire[`REGS_ADDR_BUS]    id_write_addr,
-    input   wire                    id_write_enable,
+    input   wire[`ALU_OPERATOR_BUS]     id_operator,
+    input   wire[`ALU_CATEGORY_BUS]     id_category,
+    input   wire[`REGS_DATA_BUS]        id_operand1,
+    input   wire[`REGS_DATA_BUS]        id_operand2,
+    input   wire[`REGS_ADDR_BUS]        id_write_addr,
+    input   wire                        id_write_enable,
 
-    output  reg[`ALU_OPERATOR_BUS]  ex_operator,
-    output  reg[`ALU_CATEGORY_BUS]  ex_category,
-    output  reg[`REGS_DATA_BUS]     ex_operand1,
-    output  reg[`REGS_DATA_BUS]     ex_operand2,
-    output  reg[`REGS_ADDR_BUS]     ex_write_addr,
-    output  reg                     ex_write_enable
+    output  reg[`ALU_OPERATOR_BUS]      ex_operator,
+    output  reg[`ALU_CATEGORY_BUS]      ex_category,
+    output  reg[`REGS_DATA_BUS]         ex_operand1,
+    output  reg[`REGS_DATA_BUS]         ex_operand2,
+    output  reg[`REGS_ADDR_BUS]         ex_write_addr,
+    output  reg                         ex_write_enable
 );
 
     always @ (posedge clock) begin

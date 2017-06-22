@@ -1,26 +1,26 @@
 `include "macro.v"
 
 module mem_wb_buffer(
-    input   wire                    clock,
-    input   wire                    reset,
+    input   wire                        clock,
+    input   wire                        reset,
 
-    input   wire[`SIGNAL_BUS]       stall,
+    input   wire[`SIGNAL_BUS]           stall,
 
-    input   wire                    mem_write_enable,
-    input   wire[`REGS_ADDR_BUS]    mem_write_addr,
-    input   wire[`REGS_DATA_BUS]    mem_write_data,
+    input   wire                        mem_write_enable,
+    input   wire[`REGS_ADDR_BUS]        mem_write_addr,
+    input   wire[`REGS_DATA_BUS]        mem_write_data,
 
-    input   wire                    mem_write_hilo_enable,
-    input   wire[`REGS_DATA_BUS]    mem_write_hi_data,
-    input   wire[`REGS_DATA_BUS]    mem_write_lo_data,
+    input   wire                        mem_write_hilo_enable,
+    input   wire[`REGS_DATA_BUS]        mem_write_hi_data,
+    input   wire[`REGS_DATA_BUS]        mem_write_lo_data,
 
-    output  reg                     wb_write_enable,
-    output  reg[`REGS_ADDR_BUS]     wb_write_addr,
-    output  reg[`REGS_DATA_BUS]     wb_write_data,
+    output  reg                         wb_write_enable,
+    output  reg[`REGS_ADDR_BUS]         wb_write_addr,
+    output  reg[`REGS_DATA_BUS]         wb_write_data,
 
-    output  reg                     wb_write_hilo_enable,
-    output  reg[`REGS_DATA_BUS]     wb_write_hi_data,
-    output  reg[`REGS_DATA_BUS]     wb_write_lo_data
+    output  reg                         wb_write_hilo_enable,
+    output  reg[`REGS_DATA_BUS]         wb_write_hi_data,
+    output  reg[`REGS_DATA_BUS]         wb_write_lo_data
 );
 
     always @ (posedge clock) begin

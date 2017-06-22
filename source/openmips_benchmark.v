@@ -4,8 +4,8 @@
 
 module openmips_benchmark();
 
-    reg                             CLOCK_50;
-    reg                             reset;
+    reg                                 CLOCK_50;
+    reg                                 reset;
 
     initial begin
         CLOCK_50 = 1'b0;

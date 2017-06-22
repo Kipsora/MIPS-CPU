@@ -1,40 +1,40 @@
 `include "macro.v"
 
 module id(
-    input   wire                    reset,
+    input   wire                        reset,
 
-    input   wire[`INST_ADDR_BUS]    program_counter,
-    input   wire[`INST_DATA_BUS]    instruction,
+    input   wire[`INST_ADDR_BUS]        program_counter,
+    input   wire[`INST_DATA_BUS]        instruction,
 
-    input   wire                    ex_write_enable,
-    input   wire[`REGS_ADDR_BUS]    ex_write_addr,
-    input   wire[`REGS_DATA_BUS]    ex_write_data,
+    input   wire                        ex_write_enable,
+    input   wire[`REGS_ADDR_BUS]        ex_write_addr,
+    input   wire[`REGS_DATA_BUS]        ex_write_data,
 
-    input   wire                    mem_write_enable,
-    input   wire[`REGS_ADDR_BUS]    mem_write_addr,
-    input   wire[`REGS_DATA_BUS]    mem_write_data,
+    input   wire                        mem_write_enable,
+    input   wire[`REGS_ADDR_BUS]        mem_write_addr,
+    input   wire[`REGS_DATA_BUS]        mem_write_data,
 
-    input   wire[`REGS_DATA_BUS]    read_result1,
-    input   wire[`REGS_DATA_BUS]    read_result2,
+    input   wire[`REGS_DATA_BUS]        read_result1,
+    input   wire[`REGS_DATA_BUS]        read_result2,
 
-    output  reg                     read_enable1,
-    output  reg                     read_enable2,
-    output  reg[`REGS_ADDR_BUS]     read_addr1,
-    output  reg[`REGS_ADDR_BUS]     read_addr2,
+    output  reg                         read_enable1,
+    output  reg                         read_enable2,
+    output  reg[`REGS_ADDR_BUS]         read_addr1,
+    output  reg[`REGS_ADDR_BUS]         read_addr2,
 
-    output  reg[`ALU_OPERATOR_BUS]  alu_operator,
-    output  reg[`ALU_CATEGORY_BUS]  alu_category,
-    output  reg[`REGS_DATA_BUS]     alu_operand1,
-    output  reg[`REGS_DATA_BUS]     alu_operand2,
+    output  reg[`ALU_OPERATOR_BUS]      alu_operator,
+    output  reg[`ALU_CATEGORY_BUS]      alu_category,
+    output  reg[`REGS_DATA_BUS]         alu_operand1,
+    output  reg[`REGS_DATA_BUS]         alu_operand2,
 
-    output  reg                     write_enable,
-    output  reg[`REGS_ADDR_BUS]     write_addr,
+    output  reg                         write_enable,
+    output  reg[`REGS_ADDR_BUS]         write_addr,
 
-    output  wire                    stall_signal
+    output  wire                        stall_signal
 );
 
-    reg[`REGS_DATA_BUS]             imm;
-    reg                             validality;
+    reg[`REGS_DATA_BUS]                 imm;
+    reg                                 validality;
 
     assign stall_signal = `DISABLE;
 

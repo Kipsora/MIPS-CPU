@@ -1,36 +1,36 @@
 `include "macro.v"
 
 module ex(
-    input   wire                    reset,
+    input   wire                        reset,
 
-    input   wire[`REGS_DATA_BUS]    operand_hi,
-    input   wire[`REGS_DATA_BUS]    operand_lo,
+    input   wire[`REGS_DATA_BUS]        operand_hi,
+    input   wire[`REGS_DATA_BUS]        operand_lo,
 
-    input   wire                    wb_write_hilo_enable,
-    input   wire[`REGS_DATA_BUS]    wb_write_hi_data,
-    input   wire[`REGS_DATA_BUS]    wb_write_lo_data,
+    input   wire                        wb_write_hilo_enable,
+    input   wire[`REGS_DATA_BUS]        wb_write_hi_data,
+    input   wire[`REGS_DATA_BUS]        wb_write_lo_data,
 
-    input   wire                    mem_write_hilo_enable,
-    input   wire[`REGS_DATA_BUS]    mem_write_hi_data,
-    input   wire[`REGS_DATA_BUS]    mem_write_lo_data,
+    input   wire                        mem_write_hilo_enable,
+    input   wire[`REGS_DATA_BUS]        mem_write_hi_data,
+    input   wire[`REGS_DATA_BUS]        mem_write_lo_data,
 
-    input   wire[`ALU_OPERATOR_BUS] operator,
-    input   wire[`ALU_CATEGORY_BUS] category,
-    input   wire[`REGS_DATA_BUS]    operand1,
-    input   wire[`REGS_DATA_BUS]    operand2,
-    input   wire[`REGS_ADDR_BUS]    input_write_addr,
-    input   wire                    input_write_enable,
+    input   wire[`ALU_OPERATOR_BUS]     operator,
+    input   wire[`ALU_CATEGORY_BUS]     category,
+    input   wire[`REGS_DATA_BUS]        operand1,
+    input   wire[`REGS_DATA_BUS]        operand2,
+    input   wire[`REGS_ADDR_BUS]        input_write_addr,
+    input   wire                        input_write_enable,
 
     input   wire[`DOUBLE_REGS_DATA_BUS] last_result,
     input   wire[`CYCLE_BUS]            last_cycle,
 
-    output  reg                     write_hilo_enable,
-    output  reg[`REGS_DATA_BUS]     write_hi_data,
-    output  reg[`REGS_DATA_BUS]     write_lo_data,
+    output  reg                         write_hilo_enable,
+    output  reg[`REGS_DATA_BUS]         write_hi_data,
+    output  reg[`REGS_DATA_BUS]         write_lo_data,
 
-    output  reg[`REGS_ADDR_BUS]     write_addr,
-    output  reg                     write_enable,
-    output  reg[`REGS_DATA_BUS]     write_data,
+    output  reg[`REGS_ADDR_BUS]         write_addr,
+    output  reg                         write_enable,
+    output  reg[`REGS_DATA_BUS]         write_data,
 
     output  reg[`DOUBLE_REGS_DATA_BUS]  current_result,
     output  reg[`CYCLE_BUS]             current_cycle,
@@ -38,22 +38,22 @@ module ex(
     output  reg                         stall_signal
 );
 
-    reg[`REGS_DATA_BUS]             logic_result;
-    reg[`REGS_DATA_BUS]             shift_result;
-    reg[`REGS_DATA_BUS]             move_result;
-    reg[`REGS_DATA_BUS]             arithmetic_result;
-    reg[`DOUBLE_REGS_DATA_BUS]      mult_result;
+    reg[`REGS_DATA_BUS]                 logic_result;
+    reg[`REGS_DATA_BUS]                 shift_result;
+    reg[`REGS_DATA_BUS]                 move_result;
+    reg[`REGS_DATA_BUS]                 arithmetic_result;
+    reg[`DOUBLE_REGS_DATA_BUS]          mult_result;
 
-    reg[`REGS_DATA_BUS]             hi_result_0;
-    reg[`REGS_DATA_BUS]             lo_result_0;
-    reg[`REGS_DATA_BUS]             hi_result_1;
-    reg[`REGS_DATA_BUS]             lo_result_1;
-    wire                            is_overflow;
-    wire[`REGS_DATA_BUS]            operand2_mux;
-    wire[`REGS_DATA_BUS]            addition_sum;
-    wire[`REGS_DATA_BUS]            operand1_not;
-    wire[`REGS_DATA_BUS]            opdata1_mult;
-    wire[`REGS_DATA_BUS]            opdata2_mult;
+    reg[`REGS_DATA_BUS]                 hi_result_0;
+    reg[`REGS_DATA_BUS]                 lo_result_0;
+    reg[`REGS_DATA_BUS]                 hi_result_1;
+    reg[`REGS_DATA_BUS]                 lo_result_1;
+    wire                                is_overflow;
+    wire[`REGS_DATA_BUS]                operand2_mux;
+    wire[`REGS_DATA_BUS]                addition_sum;
+    wire[`REGS_DATA_BUS]                operand1_not;
+    wire[`REGS_DATA_BUS]                opdata1_mult;
+    wire[`REGS_DATA_BUS]                opdata2_mult;
 
     assign operand2_mux = (operator == `OPERATOR_SUB
         || operator == `OPERATOR_SUBU

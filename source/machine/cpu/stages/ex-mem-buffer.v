@@ -2,28 +2,28 @@
 
 module ex_mem_buffer(
     input   wire                        clock,
-    input   wire                    reset,
+    input   wire                        reset,
 
-    input   wire[`SIGNAL_BUS]       stall,
+    input   wire[`SIGNAL_BUS]           stall,
 
-    input   wire                    ex_write_enable,
-    input   wire[`REGS_ADDR_BUS]    ex_write_addr,
-    input   wire[`REGS_DATA_BUS]    ex_write_data,
+    input   wire                        ex_write_enable,
+    input   wire[`REGS_ADDR_BUS]        ex_write_addr,
+    input   wire[`REGS_DATA_BUS]        ex_write_data,
 
-    input   wire                    ex_write_hilo_enable,
-    input   wire[`REGS_DATA_BUS]    ex_write_hi_data,
-    input   wire[`REGS_DATA_BUS]    ex_write_lo_data,
+    input   wire                        ex_write_hilo_enable,
+    input   wire[`REGS_DATA_BUS]        ex_write_hi_data,
+    input   wire[`REGS_DATA_BUS]        ex_write_lo_data,
 
     input   wire[`DOUBLE_REGS_DATA_BUS] ex_current_result,
     input   wire[`CYCLE_BUS]            ex_current_cycle,
 
-    output  reg                     mem_write_enable,
-    output  reg[`REGS_ADDR_BUS]     mem_write_addr,
-    output  reg[`REGS_DATA_BUS]     mem_write_data,
+    output  reg                         mem_write_enable,
+    output  reg[`REGS_ADDR_BUS]         mem_write_addr,
+    output  reg[`REGS_DATA_BUS]         mem_write_data,
 
-    output  reg                     mem_write_hilo_enable,
-    output  reg[`REGS_DATA_BUS]     mem_write_hi_data,
-    output  reg[`REGS_DATA_BUS]     mem_write_lo_data,
+    output  reg                         mem_write_hilo_enable,
+    output  reg[`REGS_DATA_BUS]         mem_write_hi_data,
+    output  reg[`REGS_DATA_BUS]         mem_write_lo_data,
 
     output  reg[`DOUBLE_REGS_DATA_BUS]  mem_last_result,
     output  reg[`CYCLE_BUS]             mem_last_cycle

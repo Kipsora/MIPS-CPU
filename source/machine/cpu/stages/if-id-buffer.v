@@ -1,16 +1,16 @@
 `include "macro.v"
 
 module if_id_buffer(
-    input   wire                    clock,
-    input   wire                    reset,
+    input   wire                        clock,
+    input   wire                        reset,
 
-    input   wire[`SIGNAL_BUS]       stall,
+    input   wire[`SIGNAL_BUS]           stall,
 
-    input   wire[`INST_ADDR_BUS]    if_program_counter,
-    input   wire[`INST_DATA_BUS]    if_instruction,
+    input   wire[`INST_ADDR_BUS]        if_program_counter,
+    input   wire[`INST_DATA_BUS]        if_instruction,
 
-    output  reg[`INST_ADDR_BUS]     id_program_counter,
-    output  reg[`INST_DATA_BUS]     id_instruction
+    output  reg[`INST_ADDR_BUS]         id_program_counter,
+    output  reg[`INST_DATA_BUS]         id_instruction
 );
 
     always @ (posedge clock) begin

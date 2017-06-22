@@ -12,80 +12,80 @@
 `include "machine/cpu/stages/mem-wb-buffer.v"
 
 module mips(
-    input   wire                    clock,
-    input   wire                    reset,
+    input   wire                        clock,
+    input   wire                        reset,
 
-    input   wire[`INST_DATA_BUS]    rom_data,
+    input   wire[`INST_DATA_BUS]        rom_data,
 
-    output  wire[`INST_ADDR_BUS]    rom_addr,
-    output  wire                    rom_chip_enable
+    output  wire[`INST_ADDR_BUS]        rom_addr,
+    output  wire                        rom_chip_enable
 );
-    wire[`INST_ADDR_BUS]            if_program_counter;
+    wire[`INST_ADDR_BUS]                if_program_counter;
 
-    wire[`INST_ADDR_BUS]            id_program_counter;
-    wire[`INST_DATA_BUS]            id_instruction;
-    wire[`ALU_OPERATOR_BUS]         id_alu_operator;
-    wire[`ALU_CATEGORY_BUS]         id_alu_category;
-    wire[`REGS_DATA_BUS]            id_alu_operand1;
-    wire[`REGS_DATA_BUS]            id_alu_operand2;
-    wire                            id_write_enable;
-    wire[`REGS_ADDR_BUS]            id_write_addr;
+    wire[`INST_ADDR_BUS]                id_program_counter;
+    wire[`INST_DATA_BUS]                id_instruction;
+    wire[`ALU_OPERATOR_BUS]             id_alu_operator;
+    wire[`ALU_CATEGORY_BUS]             id_alu_category;
+    wire[`REGS_DATA_BUS]                id_alu_operand1;
+    wire[`REGS_DATA_BUS]                id_alu_operand2;
+    wire                                id_write_enable;
+    wire[`REGS_ADDR_BUS]                id_write_addr;
 
-    wire[`ALU_OPERATOR_BUS]         id_ex_buffer_alu_operator;
-    wire[`ALU_CATEGORY_BUS]         id_ex_buffer_alu_category;
-    wire[`REGS_DATA_BUS]            id_ex_buffer_alu_operand1;
-    wire[`REGS_DATA_BUS]            id_ex_buffer_alu_operand2;
-    wire                            id_ex_buffer_write_enable;
-    wire[`REGS_ADDR_BUS]            id_ex_buffer_write_addr;
+    wire[`ALU_OPERATOR_BUS]             id_ex_buffer_alu_operator;
+    wire[`ALU_CATEGORY_BUS]             id_ex_buffer_alu_category;
+    wire[`REGS_DATA_BUS]                id_ex_buffer_alu_operand1;
+    wire[`REGS_DATA_BUS]                id_ex_buffer_alu_operand2;
+    wire                                id_ex_buffer_write_enable;
+    wire[`REGS_ADDR_BUS]                id_ex_buffer_write_addr;
 
-    wire                            ex_write_enable;
-    wire[`REGS_ADDR_BUS]            ex_write_addr;
-    wire[`REGS_DATA_BUS]            ex_write_data;
-    wire                            ex_write_hilo_enable;
-    wire[`REGS_DATA_BUS]            ex_write_hi_data;
-    wire[`REGS_DATA_BUS]            ex_write_lo_data;
+    wire                                ex_write_enable;
+    wire[`REGS_ADDR_BUS]                ex_write_addr;
+    wire[`REGS_DATA_BUS]                ex_write_data;
+    wire                                ex_write_hilo_enable;
+    wire[`REGS_DATA_BUS]                ex_write_hi_data;
+    wire[`REGS_DATA_BUS]                ex_write_lo_data;
 
-    wire                            ex_mem_buffer_write_enable;
-    wire[`REGS_ADDR_BUS]            ex_mem_buffer_write_addr;
-    wire[`REGS_DATA_BUS]            ex_mem_buffer_write_data;
-    wire                            ex_mem_buffer_write_hilo_enable;
-    wire[`REGS_DATA_BUS]            ex_mem_buffer_write_hi_data;
-    wire[`REGS_DATA_BUS]            ex_mem_buffer_write_lo_data;
+    wire                                ex_mem_buffer_write_enable;
+    wire[`REGS_ADDR_BUS]                ex_mem_buffer_write_addr;
+    wire[`REGS_DATA_BUS]                ex_mem_buffer_write_data;
+    wire                                ex_mem_buffer_write_hilo_enable;
+    wire[`REGS_DATA_BUS]                ex_mem_buffer_write_hi_data;
+    wire[`REGS_DATA_BUS]                ex_mem_buffer_write_lo_data;
 
-    wire                            mem_write_enable;
-    wire[`REGS_ADDR_BUS]            mem_write_addr;
-    wire[`REGS_DATA_BUS]            mem_write_data;
-    wire                            mem_write_hilo_enable;
-    wire[`REGS_DATA_BUS]            mem_write_hi_data;
-    wire[`REGS_DATA_BUS]            mem_write_lo_data;
+    wire                                mem_write_enable;
+    wire[`REGS_ADDR_BUS]                mem_write_addr;
+    wire[`REGS_DATA_BUS]                mem_write_data;
+    wire                                mem_write_hilo_enable;
+    wire[`REGS_DATA_BUS]                mem_write_hi_data;
+    wire[`REGS_DATA_BUS]                mem_write_lo_data;
 
-    wire                            mem_wb_buffer_write_enable;
-    wire[`REGS_ADDR_BUS]            mem_wb_buffer_write_addr;
-    wire[`REGS_DATA_BUS]            mem_wb_buffer_write_data;
-    wire                            mem_wb_buffer_write_hilo_enable;
-    wire[`REGS_DATA_BUS]            mem_wb_buffer_write_hi_data;
-    wire[`REGS_DATA_BUS]            mem_wb_buffer_write_lo_data;
+    wire                                mem_wb_buffer_write_enable;
+    wire[`REGS_ADDR_BUS]                mem_wb_buffer_write_addr;
+    wire[`REGS_DATA_BUS]                mem_wb_buffer_write_data;
+    wire                                mem_wb_buffer_write_hilo_enable;
+    wire[`REGS_DATA_BUS]                mem_wb_buffer_write_hi_data;
+    wire[`REGS_DATA_BUS]                mem_wb_buffer_write_lo_data;
 
-    wire                            gpr_file_read_enable1;
-    wire                            gpr_file_read_enable2;
-    wire[`REGS_ADDR_BUS]            gpr_file_read_addr1;
-    wire[`REGS_ADDR_BUS]            gpr_file_read_addr2;
-    wire[`REGS_DATA_BUS]            gpr_file_read_result1;
-    wire[`REGS_DATA_BUS]            gpr_file_read_result2;
+    wire                                gpr_file_read_enable1;
+    wire                                gpr_file_read_enable2;
+    wire[`REGS_ADDR_BUS]                gpr_file_read_addr1;
+    wire[`REGS_ADDR_BUS]                gpr_file_read_addr2;
+    wire[`REGS_DATA_BUS]                gpr_file_read_result1;
+    wire[`REGS_DATA_BUS]                gpr_file_read_result2;
 
-    wire[`REGS_DATA_BUS]            hilo_file_hi_data;
-    wire[`REGS_DATA_BUS]            hilo_file_lo_data;
+    wire[`REGS_DATA_BUS]                hilo_file_hi_data;
+    wire[`REGS_DATA_BUS]                hilo_file_lo_data;
 
-    wire[`SIGNAL_BUS]               stall_signal;
-    wire                            stall_from_id;
-    wire                            stall_from_ex;
+    wire[`SIGNAL_BUS]                   stall_signal;
+    wire                                stall_from_id;
+    wire                                stall_from_ex;
 
-    wire[`DOUBLE_REGS_DATA_BUS]     ex_current_result;
-    wire[`CYCLE_BUS]                ex_current_cycle;
-    wire[`DOUBLE_REGS_DATA_BUS]     ex_mem_last_result;
-    wire[`CYCLE_BUS]                ex_mem_last_cycle;
+    wire[`DOUBLE_REGS_DATA_BUS]         ex_current_result;
+    wire[`CYCLE_BUS]                    ex_current_cycle;
+    wire[`DOUBLE_REGS_DATA_BUS]         ex_mem_last_result;
+    wire[`CYCLE_BUS]                    ex_mem_last_cycle;
 
-    pc_reg                          pc_reg_instance(
+    pc_reg                              pc_reg_instance(
         .clock(clock), 
         .reset(reset),
         .stall(stall_signal),
@@ -95,14 +95,14 @@ module mips(
 
     assign rom_addr = if_program_counter;
 
-    control                         control_instance(
+    control                             control_instance(
         .reset(reset),
         .stall_from_id(stall_from_id),
         .stall_from_ex(stall_from_ex),
         .stall(stall_signal)
     );
 
-    if_id_buffer                    if_id_buffer_instance(
+    if_id_buffer                        if_id_buffer_instance(
         .clock(clock),
         .reset(reset),
         .stall(stall_signal),
@@ -112,7 +112,7 @@ module mips(
         .id_instruction(id_instruction)
     );
 
-    gpr_file                        gpr_file_instance(
+    gpr_file                            gpr_file_instance(
         .clock(clock),
         .reset(reset),
         .write_enable(mem_wb_buffer_write_enable),
@@ -126,7 +126,7 @@ module mips(
         .read_data2(gpr_file_read_result2)
     );
 
-    hilo_file                       hilo_file_instance(
+    hilo_file                           hilo_file_instance(
         .clock(clock),
         .reset(reset),
         .write_hilo_enable(mem_wb_buffer_write_hilo_enable),
@@ -136,7 +136,7 @@ module mips(
         .lo_data(hilo_file_lo_data)
     );
 
-    id                              id_instance(
+    id                                  id_instance(
         .reset(reset),
         .program_counter(id_program_counter),
         .instruction(id_instruction),
@@ -161,7 +161,7 @@ module mips(
         .stall_signal(stall_from_id)
     );
 
-    id_ex_buffer                    id_ex_buffer_instance(
+    id_ex_buffer                        id_ex_buffer_instance(
         .clock(clock),
         .reset(reset),
         .stall(stall_signal),
@@ -179,7 +179,7 @@ module mips(
         .ex_write_enable(id_ex_buffer_write_enable)
     );
 
-    ex                              ex_instance(
+    ex                                  ex_instance(
         .reset(reset),
         .operand_hi(hilo_file_hi_data),
         .operand_lo(hilo_file_lo_data),
@@ -208,7 +208,7 @@ module mips(
         .stall_signal(stall_from_ex)
     );
 
-    ex_mem_buffer                   ex_mem_buffer_instance(
+    ex_mem_buffer                       ex_mem_buffer_instance(
         .clock(clock),
         .reset(reset),
         .stall(stall_signal),
@@ -230,7 +230,7 @@ module mips(
         .mem_last_cycle(ex_mem_last_cycle)
     );
 
-    mem                             mem_instance(
+    mem                                 mem_instance(
         .reset(reset),
         .input_write_enable(ex_mem_buffer_write_enable),
         .input_write_addr(ex_mem_buffer_write_addr),
@@ -246,7 +246,7 @@ module mips(
         .write_lo_data(mem_write_lo_data)
     );
 
-    mem_wb_buffer                   mem_wb_buffer_instance(
+    mem_wb_buffer                       mem_wb_buffer_instance(
         .clock(clock),
         .reset(reset),
         .stall(stall_signal),

@@ -1,23 +1,23 @@
 `include "macro.v"
 
 module mem(
-    input   wire                    reset,
+    input   wire                        reset,
 
-    input   wire                    input_write_enable,
-    input   wire[`REGS_ADDR_BUS]    input_write_addr,
-    input   wire[`REGS_DATA_BUS]    input_write_data,
+    input   wire                        input_write_enable,
+    input   wire[`REGS_ADDR_BUS]        input_write_addr,
+    input   wire[`REGS_DATA_BUS]        input_write_data,
 
-    input   wire                    input_write_hilo_enable,
-    input   wire[`REGS_DATA_BUS]    input_write_hi_data,
-    input   wire[`REGS_DATA_BUS]    input_write_lo_data,
+    input   wire                        input_write_hilo_enable,
+    input   wire[`REGS_DATA_BUS]        input_write_hi_data,
+    input   wire[`REGS_DATA_BUS]        input_write_lo_data,
 
-    output  reg                     write_enable,
-    output  reg[`REGS_ADDR_BUS]     write_addr,
-    output  reg[`REGS_DATA_BUS]     write_data,
+    output  reg                         write_enable,
+    output  reg[`REGS_ADDR_BUS]         write_addr,
+    output  reg[`REGS_DATA_BUS]         write_data,
 
-    output  reg                     write_hilo_enable,
-    output  reg[`REGS_DATA_BUS]     write_hi_data,
-    output  reg[`REGS_DATA_BUS]     write_lo_data
+    output  reg                         write_hilo_enable,
+    output  reg[`REGS_DATA_BUS]         write_hi_data,
+    output  reg[`REGS_DATA_BUS]         write_lo_data
 );
 
     always @ (*) begin

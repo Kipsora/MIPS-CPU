@@ -1,23 +1,23 @@
 `include "macro.v"
 
 module gpr_file(
-    input   wire                    clock,
-    input   wire                    reset,
+    input   wire                        clock,
+    input   wire                        reset,
 
-    input   wire                    write_enable,
-    input   wire[`REGS_ADDR_BUS]    write_addr,
-    input   wire[`REGS_DATA_BUS]    write_data,
+    input   wire                        write_enable,
+    input   wire[`REGS_ADDR_BUS]        write_addr,
+    input   wire[`REGS_DATA_BUS]        write_data,
 
-    input   wire                    read_enable1,
-    input   wire[`REGS_ADDR_BUS]    read_addr1,
-    output  reg[`REGS_DATA_BUS]     read_data1,
+    input   wire                        read_enable1,
+    input   wire[`REGS_ADDR_BUS]        read_addr1,
+    output  reg[`REGS_DATA_BUS]         read_data1,
 
-    input   wire                    read_enable2,
-    input   wire[`REGS_ADDR_BUS]    read_addr2,
-    output  reg[`REGS_DATA_BUS]     read_data2
+    input   wire                        read_enable2,
+    input   wire[`REGS_ADDR_BUS]        read_addr2,
+    output  reg[`REGS_DATA_BUS]         read_data2
 );
 
-    reg[`REGS_DATA_BUS]             regs[0:`REGS_NUM - 1];
+    reg[`REGS_DATA_BUS]                 regs[0:`REGS_NUM - 1];
 
 
     always @ (posedge clock) begin

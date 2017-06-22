@@ -1,12 +1,12 @@
 `include "macro.v"
 
 module rom(
-    input   wire                    chip_enable,
-    input   wire[`INST_ADDR_BUS]    addr,
-    output  reg[`INST_ADDR_BUS]     instruction
+    input   wire                        chip_enable,
+    input   wire[`INST_ADDR_BUS]        addr,
+    output  reg[`INST_ADDR_BUS]         instruction
 );
 
-    reg[`INST_DATA_BUS]             memory[0:`MEMO_NUM - 1];
+    reg[`INST_DATA_BUS]                 memory[0:`MEMO_NUM - 1];
 
     initial $readmemh("program.rom", memory);
 

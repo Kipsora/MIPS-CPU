@@ -1,11 +1,11 @@
 `include "macro.v"
 
 module pc_reg(
-    input   wire                    clock,
-    input   wire                    reset,
-    input   wire[`SIGNAL_BUS]       stall,
-    output  reg[`INST_ADDR_BUS]     program_counter,
-    output  reg                     chip_enable
+    input   wire                        clock,
+    input   wire                        reset,
+    input   wire[`SIGNAL_BUS]           stall,
+    output  reg[`INST_ADDR_BUS]         program_counter,
+    output  reg                         chip_enable
 );
 
     always @ (posedge clock) begin
