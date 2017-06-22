@@ -40,6 +40,10 @@
 `define OPERATOR_CLO   8'b00010111       // FIXME: defined by myself
 `define OPERATOR_MULTU 8'b00011000       // FIXME: defined by myself
 `define OPERATOR_MUL   8'b00011001       // FIXME: defined by myself
+`define OPERATOR_MADD  8'b00011010       // FIXME: defined by myself
+`define OPERATOR_MADDU 8'b00011011       // FIXME: defined by myself
+`define OPERATOR_MSUB  8'b00011100       // FIXME: defined by myself
+`define OPERATOR_MSUBU 8'b00011101       // FIXME: defined by myself
 `define OPERATOR_OR    8'b00100101       // FIXME: defined by myself
 
 `define INST_NOP_ID 6'b000000
@@ -194,6 +198,22 @@
 `define INST_MUL_CATEGORY `CATEGORY_MULTIPLY
 `define INST_MUL_OPERATOR `OPERATOR_MUL
 
+`define INST_MADD_ID 6'b000000
+`define INST_MADD_CATEGORY `CATEGORY_NOP
+`define INST_MADD_OPERATOR `OPERATOR_MADD
+
+`define INST_MADDU_ID 6'b000001
+`define INST_MADDU_CATEGORY `CATEGORY_NOP
+`define INST_MADDU_OPERATOR `OPERATOR_MADDU
+
+`define INST_MSUB_ID 6'b000100
+`define INST_MSUB_CATEGORY `CATEGORY_NOP
+`define INST_MSUB_OPERATOR `OPERATOR_MSUB
+
+`define INST_MSUBU_ID 6'b000101
+`define INST_MSUBU_CATEGORY `CATEGORY_NOP
+`define INST_MSUBU_OPERATOR `OPERATOR_MSUBU
+
 `define INST_ADDR_BUS 31:0
 `define INST_DATA_BUS 31:0
 
@@ -208,3 +228,5 @@
 `define REGS_DATA_BUS 31:0
 `define DOUBLE_REGS_DATA_BUS 63:0
 `define REGS_SIZE 5
+`define SIGNAL_BUS 5:0
+`define CYCLE_BUS 1:0

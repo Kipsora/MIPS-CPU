@@ -22,4 +22,8 @@
     "name": "arithmetic", 
     "path": "arithmetic/program.s",
     "report": "arithmetic"
+}, {
+    "name": "stall", 
+    "path": "stall/program.s",
+    "report": "stall"
 }]

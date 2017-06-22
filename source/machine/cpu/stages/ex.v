@@ -21,23 +21,33 @@ module ex(
     input   wire[`REGS_ADDR_BUS]    input_write_addr,
     input   wire                    input_write_enable,
 
+    input   wire[`DOUBLE_REGS_DATA_BUS] last_result,
+    input   wire[`CYCLE_BUS]            last_cycle,
+
     output  reg                     write_hilo_enable,
     output  reg[`REGS_DATA_BUS]     write_hi_data,
     output  reg[`REGS_DATA_BUS]     write_lo_data,
 
     output  reg[`REGS_ADDR_BUS]     write_addr,
     output  reg                     write_enable,
-    output  reg[`REGS_DATA_BUS]     write_data
+    output  reg[`REGS_DATA_BUS]     write_data,
+
+    output  reg[`DOUBLE_REGS_DATA_BUS]  current_result,
+    output  reg[`CYCLE_BUS]             current_cycle,
+
+    output  reg                         stall_signal
 );
 
     reg[`REGS_DATA_BUS]             logic_result;
     reg[`REGS_DATA_BUS]             shift_result;
     reg[`REGS_DATA_BUS]             move_result;
-    reg[`REGS_DATA_BUS]             hi_result;
-    reg[`REGS_DATA_BUS]             lo_result;
     reg[`REGS_DATA_BUS]             arithmetic_result;
     reg[`DOUBLE_REGS_DATA_BUS]      mult_result;
 
+    reg[`REGS_DATA_BUS]             hi_result_0;
+    reg[`REGS_DATA_BUS]             lo_result_0;
+    reg[`REGS_DATA_BUS]             hi_result_1;
+    reg[`REGS_DATA_BUS]             lo_result_1;
     wire                            is_overflow;
     wire[`REGS_DATA_BUS]            operand2_mux;
     wire[`REGS_DATA_BUS]            addition_sum;
@@ -57,12 +67,13 @@ module ex(
     assign is_overflow = ((!operand1[31] && !operand2_mux[31]) && addition_sum[31])
         || (operand1[31] && operand2_mux[31]) && (!addition_sum[31]);
 
-    assign opdata1_mult = ((operator == `OPERATOR_MUL || operator == `OPERATOR_MULT) && operand1[31]) ? (~operand1 + 1) : operand1;
-    assign opdata2_mult = ((operator == `OPERATOR_MUL || operator == `OPERATOR_MULT) && operand2[31]) ? (~operand2 + 1) : operand2;
+    assign opdata1_mult = ((operator == `OPERATOR_MUL || operator == `OPERATOR_MULT || operator == `OPERATOR_MADD || operator == `OPERATOR_MSUB) && operand1[31]) ? (~operand1 + 1) : operand1;
+    assign opdata2_mult = ((operator == `OPERATOR_MUL || operator == `OPERATOR_MULT || operator == `OPERATOR_MADD || operator == `OPERATOR_MSUB) && operand2[31]) ? (~operand2 + 1) : operand2;
     always @ (*) begin
         if (reset == `ENABLE) begin
             mult_result <= 0;                     // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
-        end else if (operator == `OPERATOR_MUL || operator == `OPERATOR_MULT) begin
+        end else if (operator == `OPERATOR_MUL || operator == `OPERATOR_MULT 
+            || operator == `OPERATOR_MADD || operator == `OPERATOR_MSUB) begin
             if (operand1[31] ^ operand2[31] == 1'b1) begin // if the answer is negative
                 mult_result <= ~(opdata1_mult * opdata2_mult) + 1;
             end else begin
@@ -70,6 +81,49 @@ module ex(
             end
         end else begin // operator == `OPERATOR_MULTU
             mult_result <= operand1 * operand2;
+        end
+    end
+
+    always @ (*) begin
+        if (reset == `ENABLE) begin
+            current_result <= 0;                  // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
+            current_cycle <= 0;                   // FIXME: 2'b00 should be used here, but 0 is used
+            stall_signal <= `DISABLE;
+        end else begin
+            case (operator)
+                `OPERATOR_MADD, `OPERATOR_MADDU: begin
+                    if (last_cycle == 0) begin    // FIXME: 2'b00 should be used here, but 0 is used
+                        current_result <= mult_result;
+                        current_cycle <= 1;       // FIXME: 2'b01 should be used here, but 1 is used
+                        {hi_result_1, lo_result_1} <= 0; // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
+                        stall_signal <= `ENABLE;
+                    end else if (last_cycle == 1) begin // FIXME: 2'b01 should be used here, but 0 is used
+                        current_result <= 0;      // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
+                        current_cycle <= 2;       // FIXME: 2'b10 should be used here, but 2 is used
+                        {hi_result_1, lo_result_1} <= last_result + {hi_result_0, lo_result_0};
+                        stall_signal <= `DISABLE;
+                    end
+                end
+                `OPERATOR_MSUB, `OPERATOR_MSUBU: begin
+                    if (last_cycle == 0) begin    // FIXME: 2'b00 should be used here, but 0 is used
+                        current_result <= ~mult_result + 1;
+                        current_cycle <= 1;       // FIXME: 2'b01 should be used here, but 1 is used
+                        {hi_result_1, lo_result_1} <= 0; // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used 
+                                                         // TODO: check whether it is valid(added by myself)
+                        stall_signal <= `ENABLE;
+                    end else if (last_cycle == 1) begin
+                        current_result <= 0;      // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
+                        current_cycle <= 2;       // FIXME: 2'b10 should be used here, but 2 is used
+                        {hi_result_1, lo_result_1} <= last_result + {hi_result_0, lo_result_0};
+                        stall_signal <= `DISABLE;
+                    end
+                end
+                default: begin
+                    current_result <= 0;      // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
+                    current_cycle <= 0;       // FIXME: 2'b00 should be used here, but 0 is used
+                    stall_signal <= `DISABLE;
+                end
+            endcase
         end
     end
 
@@ -129,13 +183,13 @@ module ex(
 
     always @ (*) begin
         if (reset == `ENABLE) begin
-            {hi_result, lo_result} <= 0;          // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
+            {hi_result_0, lo_result_0} <= 0;          // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
         end else if (mem_write_hilo_enable == `ENABLE) begin
-            {hi_result, lo_result} <= {mem_write_hi_data, mem_write_lo_data};
+            {hi_result_0, lo_result_0} <= {mem_write_hi_data, mem_write_lo_data};
         end else if (wb_write_hilo_enable == `ENABLE) begin
-            {hi_result, lo_result} <= {wb_write_hi_data, wb_write_lo_data};
+            {hi_result_0, lo_result_0} <= {wb_write_hi_data, wb_write_lo_data};
         end else begin
-            {hi_result, lo_result} <= {operand_hi, operand_lo};
+            {hi_result_0, lo_result_0} <= {operand_hi, operand_lo};
         end
     end
 
@@ -146,10 +200,10 @@ module ex(
             move_result <= 0;                     // FIXME: ZERO_WORD should be used here, but 0 is used
             case (operator)
                 `INST_MFHI_OPERATOR: begin
-                    move_result <= hi_result;
+                    move_result <= hi_result_0;
                 end
                 `INST_MFLO_OPERATOR: begin
-                    move_result <= lo_result;
+                    move_result <= lo_result_0;
                 end
                 `INST_MOVZ_OPERATOR: begin
                     move_result <= operand1;
@@ -245,17 +299,22 @@ module ex(
             write_hilo_enable <= `DISABLE;
             write_hi_data <= 0;                     // FIXME: ZERO_WORD should be used here, but 0 is used
             write_lo_data <= 0;                     // FIXME: ZERO_WORD should be used here, but 0 is used
+        end else if (operator == `OPERATOR_MSUB || operator == `OPERATOR_MSUBU
+            || operator == `OPERATOR_MADD || operator == `OPERATOR_MADDU) begin
+            write_hilo_enable <= `ENABLE;
+            write_hi_data <= hi_result_1;
+            write_lo_data <= lo_result_1;
         end else if (operator == `OPERATOR_MULT || operator == `OPERATOR_MULTU) begin
             write_hilo_enable <= `ENABLE;
             write_hi_data <= mult_result[63 : 32];
             write_lo_data <= mult_result[31 : 0];
-        end else if (operator == `INST_MTHI_OPERATOR) begin
+        end else if (operator == `OPERATOR_MTHI) begin
             write_hilo_enable <= `ENABLE;
             write_hi_data <= operand1;
-            write_lo_data <= lo_result;
-        end else if (operator == `INST_MTLO_OPERATOR) begin
+            write_lo_data <= lo_result_0;
+        end else if (operator == `OPERATOR_MTLO) begin
             write_hilo_enable <= `ENABLE;
-            write_hi_data <= hi_result;
+            write_hi_data <= hi_result_0;
             write_lo_data <= operand1;
         end else begin
             write_hilo_enable <= `DISABLE;

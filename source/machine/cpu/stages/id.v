@@ -28,11 +28,15 @@ module id(
     output  reg[`REGS_DATA_BUS]     alu_operand2,
 
     output  reg                     write_enable,
-    output  reg[`REGS_ADDR_BUS]     write_addr
+    output  reg[`REGS_ADDR_BUS]     write_addr,
+
+    output  wire                    stall_signal
 );
 
     reg[`REGS_DATA_BUS]             imm;
     reg                             validality;
+
+    assign stall_signal = `DISABLE;
 
     always @ (*) begin
         if (reset == `ENABLE) begin
@@ -231,8 +235,6 @@ module id(
                             end
                             `INST_MULT_ID: begin // FIXME: mult has no category due to no data
                                                  // are needed to write back
-                                $display("FUCK YOU!!!!");
-                                $display("%x", instruction);
                                 write_enable <= `ENABLE;
                                 alu_operator <= `INST_MULT_OPERATOR;
                                 read_enable1 <= `ENABLE;
@@ -269,10 +271,42 @@ module id(
                             read_enable2 <= `DISABLE;
                             validality <= `VALID;
                         end
-                        `INST_MUL_ID: begin
+                        `INST_MUL_ID: begin 
                             write_enable <= `ENABLE;
                             alu_operator <= `INST_MUL_OPERATOR;
                             alu_category <= `INST_MUL_CATEGORY;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `ENABLE;
+                            validality <= `VALID;
+                        end
+                        `INST_MADD_ID: begin // FIXME: mult has no category due to no data
+                                             // are needed to write back
+                            write_enable <= `DISABLE;
+                            alu_operator <= `INST_MADD_OPERATOR;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `ENABLE;
+                            validality <= `VALID;
+                        end
+                        `INST_MADDU_ID: begin // FIXME: mult has no category due to no data
+                                              // are needed to write back
+                            write_enable <= `DISABLE;
+                            alu_operator <= `INST_MADDU_OPERATOR;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `ENABLE;
+                            validality <= `VALID;
+                        end
+                        `INST_MSUB_ID: begin // FIXME: mult has no category due to no data
+                                             // are needed to write back
+                            write_enable <= `DISABLE;
+                            alu_operator <= `INST_MSUB_OPERATOR;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `ENABLE;
+                            validality <= `VALID;
+                        end
+                        `INST_MSUBU_ID: begin // FIXME: mult has no category due to no data
+                                              // are needed to write back
+                            write_enable <= `DISABLE;
+                            alu_operator <= `INST_MSUBU_OPERATOR;
                             read_enable1 <= `ENABLE;
                             read_enable2 <= `ENABLE;
                             validality <= `VALID;

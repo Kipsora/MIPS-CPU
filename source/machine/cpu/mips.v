@@ -1,4 +1,5 @@
 `include "macro.v"
+`include "machine/cpu/control.v"
 `include "machine/cpu/stages/pc-reg.v"
 `include "machine/cpu/stages/if-id-buffer.v"
 `include "machine/cpu/stages/id.v"
@@ -75,18 +76,36 @@ module mips(
     wire[`REGS_DATA_BUS]            hilo_file_hi_data;
     wire[`REGS_DATA_BUS]            hilo_file_lo_data;
 
+    wire[`SIGNAL_BUS]               stall_signal;
+    wire                            stall_from_id;
+    wire                            stall_from_ex;
+
+    wire[`DOUBLE_REGS_DATA_BUS]     ex_current_result;
+    wire[`CYCLE_BUS]                ex_current_cycle;
+    wire[`DOUBLE_REGS_DATA_BUS]     ex_mem_last_result;
+    wire[`CYCLE_BUS]                ex_mem_last_cycle;
+
     pc_reg                          pc_reg_instance(
         .clock(clock), 
-        .reset(reset), 
+        .reset(reset),
+        .stall(stall_signal),
         .program_counter(if_program_counter),
         .chip_enable(rom_chip_enable)
     );
 
     assign rom_addr = if_program_counter;
 
+    control                         control_instance(
+        .reset(reset),
+        .stall_from_id(stall_from_id),
+        .stall_from_ex(stall_from_ex),
+        .stall(stall_signal)
+    );
+
     if_id_buffer                    if_id_buffer_instance(
         .clock(clock),
         .reset(reset),
+        .stall(stall_signal),
         .if_program_counter(if_program_counter),
         .if_instruction(rom_data),
         .id_program_counter(id_program_counter),
@@ -138,12 +157,14 @@ module mips(
         .alu_operand1(id_alu_operand1),
         .alu_operand2(id_alu_operand2),
         .write_enable(id_write_enable),
-        .write_addr(id_write_addr)
+        .write_addr(id_write_addr),
+        .stall_signal(stall_from_id)
     );
 
     id_ex_buffer                    id_ex_buffer_instance(
         .clock(clock),
         .reset(reset),
+        .stall(stall_signal),
         .id_operator(id_alu_operator),
         .id_category(id_alu_category),
         .id_operand1(id_alu_operand1),
@@ -174,29 +195,39 @@ module mips(
         .operand2(id_ex_buffer_alu_operand2),
         .input_write_addr(id_ex_buffer_write_addr),
         .input_write_enable(id_ex_buffer_write_enable),
+        .last_result(ex_mem_last_result),
+        .last_cycle(ex_mem_last_cycle),
         .write_hilo_enable(ex_write_hilo_enable),
         .write_hi_data(ex_write_hi_data),
         .write_lo_data(ex_write_lo_data),
         .write_addr(ex_write_addr),
         .write_enable(ex_write_enable),
-        .write_data(ex_write_data)
+        .write_data(ex_write_data),
+        .current_result(ex_current_result),
+        .current_cycle(ex_current_cycle),
+        .stall_signal(stall_from_ex)
     );
 
     ex_mem_buffer                   ex_mem_buffer_instance(
         .clock(clock),
         .reset(reset),
+        .stall(stall_signal),
         .ex_write_enable(ex_write_enable),
         .ex_write_addr(ex_write_addr),
         .ex_write_data(ex_write_data),
         .ex_write_hilo_enable(ex_write_hilo_enable),
         .ex_write_hi_data(ex_write_hi_data),
         .ex_write_lo_data(ex_write_lo_data),
+        .ex_current_result(ex_current_result),
+        .ex_current_cycle(ex_current_cycle),
         .mem_write_enable(ex_mem_buffer_write_enable),
         .mem_write_addr(ex_mem_buffer_write_addr),
         .mem_write_data(ex_mem_buffer_write_data),
         .mem_write_hilo_enable(ex_mem_buffer_write_hilo_enable),
         .mem_write_hi_data(ex_mem_buffer_write_hi_data),
-        .mem_write_lo_data(ex_mem_buffer_write_lo_data)
+        .mem_write_lo_data(ex_mem_buffer_write_lo_data),
+        .mem_last_result(ex_mem_last_result),
+        .mem_last_cycle(ex_mem_last_cycle)
     );
 
     mem                             mem_instance(
@@ -218,6 +249,7 @@ module mips(
     mem_wb_buffer                   mem_wb_buffer_instance(
         .clock(clock),
         .reset(reset),
+        .stall(stall_signal),
         .mem_write_enable(mem_write_enable),
         .mem_write_addr(mem_write_addr),
         .mem_write_data(mem_write_data),

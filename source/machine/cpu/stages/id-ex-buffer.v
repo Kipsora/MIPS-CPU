@@ -4,6 +4,8 @@ module id_ex_buffer(
     input   wire                    clock,
     input   wire                    reset,
 
+    input   wire[`SIGNAL_BUS]       stall,
+
     input   wire[`ALU_OPERATOR_BUS] id_operator,
     input   wire[`ALU_CATEGORY_BUS] id_category,
     input   wire[`REGS_DATA_BUS]    id_operand1,
@@ -27,7 +29,14 @@ module id_ex_buffer(
             ex_operand2 <= 0;              // FIXME: ZERO_WORD should be used here, but I used 0
             ex_write_addr <= 0;            // FIXME: NOPRegAddr should be used here, but I used 0
             ex_write_enable <= `DISABLE;
-        end else begin
+        end else if (stall[2] == `ENABLE && stall[3] == `DISABLE) begin
+            ex_operator <= 0;              // FIXME: EXE_NOP_OP should be used here, but I used 0
+            ex_category <= 0;              // FIXME: EXE_RES_NOP should be used here, but I used 0
+            ex_operand1 <= 0;              // FIXME: ZERO_WORD should be used here, but I used 0
+            ex_operand2 <= 0;              // FIXME: ZERO_WORD should be used here, but I used 0
+            ex_write_addr <= 0;            // FIXME: NOPRegAddr should be used here, but I used 0
+            ex_write_enable <= `DISABLE;
+        end else if (stall[2] == `DISABLE) begin
             ex_operator <= id_operator;
             ex_category <= id_category;
             ex_operand1 <= id_operand1;
