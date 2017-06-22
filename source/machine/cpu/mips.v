@@ -7,6 +7,7 @@
 `include "machine/cpu/regfile/hilo-file.v"
 `include "machine/cpu/stages/id-ex-buffer.v"
 `include "machine/cpu/stages/ex.v"
+`include "machine/cpu/stages/ex-div.v"
 `include "machine/cpu/stages/ex-mem-buffer.v"
 `include "machine/cpu/stages/mem.v"
 `include "machine/cpu/stages/mem-wb-buffer.v"
@@ -44,6 +45,13 @@ module mips(
     wire                                ex_write_hilo_enable;
     wire[`REGS_DATA_BUS]                ex_write_hi_data;
     wire[`REGS_DATA_BUS]                ex_write_lo_data;
+    wire[`REGS_DATA_BUS]                ex_to_div_operand1;
+    wire[`REGS_DATA_BUS]                ex_to_div_operand2;
+    wire                                ex_to_div_is_start;
+    wire                                ex_to_div_is_signed;
+
+    wire[`DOUBLE_REGS_DATA_BUS]         ex_div_result;
+    wire                                ex_div_is_ended;
 
     wire                                ex_mem_buffer_write_enable;
     wire[`REGS_ADDR_BUS]                ex_mem_buffer_write_addr;
@@ -189,6 +197,8 @@ module mips(
         .mem_write_hilo_enable(mem_write_hilo_enable),
         .mem_write_hi_data(mem_write_hi_data),
         .mem_write_lo_data(mem_write_lo_data),
+        .ex_div_result(ex_div_result),
+        .ex_div_is_ended(ex_div_is_ended),
         .operator(id_ex_buffer_alu_operator),
         .category(id_ex_buffer_alu_category),
         .operand1(id_ex_buffer_alu_operand1),
@@ -197,6 +207,10 @@ module mips(
         .input_write_enable(id_ex_buffer_write_enable),
         .last_result(ex_mem_last_result),
         .last_cycle(ex_mem_last_cycle),
+        .to_div_operand1(ex_to_div_operand1),
+        .to_div_operand2(ex_to_div_operand2),
+        .to_div_is_start(ex_to_div_is_start),
+        .to_div_is_signed(ex_to_div_is_signed),
         .write_hilo_enable(ex_write_hilo_enable),
         .write_hi_data(ex_write_hi_data),
         .write_lo_data(ex_write_lo_data),
@@ -206,6 +220,18 @@ module mips(
         .current_result(ex_current_result),
         .current_cycle(ex_current_cycle),
         .stall_signal(stall_from_ex)
+    );
+
+    ex_div                              ex_div_instance(
+        .clock(clock),
+        .reset(reset),
+        .is_signed(ex_to_div_is_signed),
+        .operand1(ex_to_div_operand1),
+        .operand2(ex_to_div_operand2),
+        .is_start(ex_to_div_is_start),
+        .is_annul(1'b0),
+        .is_ended(ex_div_is_ended),
+        .result(ex_div_result)
     );
 
     ex_mem_buffer                       ex_mem_buffer_instance(

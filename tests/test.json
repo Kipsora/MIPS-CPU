@@ -26,4 +26,8 @@
     "name": "stall", 
     "path": "stall/program.s",
     "report": "stall"
+}, {
+    "name": "div", 
+    "path": "div/program.s",
+    "report": "div"
 }]

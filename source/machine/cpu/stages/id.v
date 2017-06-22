@@ -241,9 +241,26 @@ module id(
                                 read_enable2 <= `ENABLE;
                                 validality <= `VALID;
                             end
-                            `INST_MULTU_ID: begin
+                            `INST_MULTU_ID: begin // FIXME: multu has no category due to no data
+                                                  // are needed to write back
                                 write_enable <= `ENABLE;
                                 alu_operator <= `INST_MULTU_OPERATOR;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_DIV_ID: begin // FIXME: div has no category due to no data
+                                                // are needed to write back to gprfile
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_DIV_OPERATOR;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `ENABLE;
+                                validality <= `VALID;
+                            end
+                            `INST_DIVU_ID: begin // FIXME: divu has no category due to no data
+                                                 // are needed to write back to gprfile
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_DIVU_OPERATOR;
                                 read_enable1 <= `ENABLE;
                                 read_enable2 <= `ENABLE;
                                 validality <= `VALID;

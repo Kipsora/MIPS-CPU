@@ -2,6 +2,8 @@
 `define DISABLE 1'b0
 `define VALID 1'b1
 `define INVALID 1'b0
+`define TRUE 1'b1
+`define FALSE 1'b0
 
 /* Definition with instructions */
 `define ALU_OPERATOR_BUS 7:0
@@ -44,6 +46,8 @@
 `define OPERATOR_MADDU 8'b00011011       // FIXME: defined by myself
 `define OPERATOR_MSUB  8'b00011100       // FIXME: defined by myself
 `define OPERATOR_MSUBU 8'b00011101       // FIXME: defined by myself
+`define OPERATOR_DIV   8'b00011110       // FIXME: defined by myself
+`define OPERATOR_DIVU  8'b00011111       // FIXME: defined by myself
 `define OPERATOR_OR    8'b00100101       // FIXME: defined by myself
 
 `define INST_NOP_ID 6'b000000
@@ -214,6 +218,14 @@
 `define INST_MSUBU_CATEGORY `CATEGORY_NOP
 `define INST_MSUBU_OPERATOR `OPERATOR_MSUBU
 
+`define INST_DIV_ID 6'b011010
+`define INST_DIV_CATEGORY `CATEGORY_NOP
+`define INST_DIV_OPERATOR `OPERATOR_DIV
+
+`define INST_DIVU_ID 6'b011011
+`define INST_DIVU_CATEGORY `CATEGORY_NOP
+`define INST_DIVU_OPERATOR `OPERATOR_DIVU
+
 `define INST_ADDR_BUS 31:0
 `define INST_DATA_BUS 31:0
 
@@ -226,7 +238,17 @@
 `define REGS_NUM_LOG 5
 `define REGS_ADDR_BUS 4:0
 `define REGS_DATA_BUS 31:0
+`define EXT_REGS_DATA_BUS 32:0
 `define DOUBLE_REGS_DATA_BUS 63:0
+`define EXT_DOUBLE_REGS_DATA_BUS 64:0
 `define REGS_SIZE 5
+
+/* Difinition with signal bus */
 `define SIGNAL_BUS 5:0
 `define CYCLE_BUS 1:0
+
+/* Definition with constants in div module */
+`define DIV_FREE 2'b00
+`define DIV_BY_ZERO 2'b01
+`define DIV_ON 2'b10
+`define DIV_END 2'b11

@@ -14,6 +14,9 @@ module ex(
     input   wire[`REGS_DATA_BUS]        mem_write_hi_data,
     input   wire[`REGS_DATA_BUS]        mem_write_lo_data,
 
+    input   wire[`DOUBLE_REGS_DATA_BUS] ex_div_result,
+    input   wire                        ex_div_is_ended,
+
     input   wire[`ALU_OPERATOR_BUS]     operator,
     input   wire[`ALU_CATEGORY_BUS]     category,
     input   wire[`REGS_DATA_BUS]        operand1,
@@ -23,6 +26,11 @@ module ex(
 
     input   wire[`DOUBLE_REGS_DATA_BUS] last_result,
     input   wire[`CYCLE_BUS]            last_cycle,
+
+    output  reg[`REGS_DATA_BUS]         to_div_operand1,
+    output  reg[`REGS_DATA_BUS]         to_div_operand2,
+    output  reg                         to_div_is_start,
+    output  reg                         to_div_is_signed,
 
     output  reg                         write_hilo_enable,
     output  reg[`REGS_DATA_BUS]         write_hi_data,
@@ -54,6 +62,8 @@ module ex(
     wire[`REGS_DATA_BUS]                operand1_not;
     wire[`REGS_DATA_BUS]                opdata1_mult;
     wire[`REGS_DATA_BUS]                opdata2_mult;
+    reg                                 stall_signal_from_div;
+    reg                                 stall_signal_from_mul;
 
     assign operand2_mux = (operator == `OPERATOR_SUB
         || operator == `OPERATOR_SUBU
@@ -85,10 +95,74 @@ module ex(
     end
 
     always @ (*) begin
+        stall_signal <= stall_signal_from_div || stall_signal_from_mul;
+    end
+
+    always @ (*) begin
+        if (reset == `ENABLE) begin
+            to_div_operand1 <= 0;      // FIXME: ZERO_WORD should be used here
+            to_div_operand2 <= 0;      // FIXME: ZERO_WORD should be used here
+            to_div_is_start <= `FALSE;
+            to_div_is_signed <= `FALSE;
+            stall_signal_from_div <= `DISABLE;
+        end else begin
+            to_div_operand1 <= 0;      // FIXME: ZERO_WORD should be used here
+            to_div_operand2 <= 0;      // FIXME: ZERO_WORD should be used here
+            to_div_is_start <= `FALSE;
+            to_div_is_signed <= `FALSE;
+            stall_signal_from_div <= `DISABLE;
+            case (operator)
+                `OPERATOR_DIV: begin
+                    if (ex_div_is_ended == `FALSE) begin
+                        to_div_operand1 <= operand1;
+                        to_div_operand2 <= operand2;
+                        to_div_is_start <= `TRUE;
+                        to_div_is_signed <= `TRUE;
+                        stall_signal_from_div <= `ENABLE;
+                    end else if (ex_div_is_ended == `TRUE) begin
+                        to_div_operand1 <= operand1;
+                        to_div_operand2 <= operand2;
+                        to_div_is_start <= `FALSE;
+                        to_div_is_signed <= `TRUE;
+                        stall_signal_from_div <= `DISABLE;
+                    end else begin
+                        to_div_operand1 <= 0;      // FIXME: ZERO_WORD should be used here
+                        to_div_operand2 <= 0;      // FIXME: ZERO_WORD should be used here
+                        to_div_is_start <= `FALSE;
+                        to_div_is_signed <= `FALSE;
+                        stall_signal_from_div <= `DISABLE;
+                    end
+                end
+                `OPERATOR_DIVU: begin
+                    if (ex_div_is_ended == `FALSE) begin
+                        to_div_operand1 <= operand1;
+                        to_div_operand2 <= operand2;
+                        to_div_is_start <= `TRUE;
+                        to_div_is_signed <= `FALSE;
+                        stall_signal_from_div <= `ENABLE;
+                    end else if (ex_div_is_ended == `TRUE) begin
+                        to_div_operand1 <= operand1;
+                        to_div_operand2 <= operand2;
+                        to_div_is_start <= `FALSE;
+                        to_div_is_signed <= `FALSE;
+                        stall_signal_from_div <= `DISABLE;
+                    end else begin
+                        to_div_operand1 <= 0;      // FIXME: ZERO_WORD should be used here
+                        to_div_operand2 <= 0;      // FIXME: ZERO_WORD should be used here
+                        to_div_is_start <= `FALSE;
+                        to_div_is_signed <= `FALSE;
+                        stall_signal_from_div <= `DISABLE;
+                    end
+                end
+            endcase
+        end
+    end
+
+    always @ (*) begin
         if (reset == `ENABLE) begin
             current_result <= 0;                  // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
             current_cycle <= 0;                   // FIXME: 2'b00 should be used here, but 0 is used
-            stall_signal <= `DISABLE;
+            stall_signal_from_mul <= `DISABLE;
         end else begin
             case (operator)
                 `OPERATOR_MADD, `OPERATOR_MADDU: begin
@@ -96,12 +170,12 @@ module ex(
                         current_result <= mult_result;
                         current_cycle <= 1;       // FIXME: 2'b01 should be used here, but 1 is used
                         {hi_result_1, lo_result_1} <= 0; // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
-                        stall_signal <= `ENABLE;
+                        stall_signal_from_mul <= `ENABLE;
                     end else if (last_cycle == 1) begin // FIXME: 2'b01 should be used here, but 0 is used
                         current_result <= 0;      // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
                         current_cycle <= 2;       // FIXME: 2'b10 should be used here, but 2 is used
                         {hi_result_1, lo_result_1} <= last_result + {hi_result_0, lo_result_0};
-                        stall_signal <= `DISABLE;
+                        stall_signal_from_mul <= `DISABLE;
                     end
                 end
                 `OPERATOR_MSUB, `OPERATOR_MSUBU: begin
@@ -110,18 +184,18 @@ module ex(
                         current_cycle <= 1;       // FIXME: 2'b01 should be used here, but 1 is used
                         {hi_result_1, lo_result_1} <= 0; // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used 
                                                          // TODO: check whether it is valid(added by myself)
-                        stall_signal <= `ENABLE;
+                        stall_signal_from_mul <= `ENABLE;
                     end else if (last_cycle == 1) begin
                         current_result <= 0;      // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
                         current_cycle <= 2;       // FIXME: 2'b10 should be used here, but 2 is used
                         {hi_result_1, lo_result_1} <= last_result + {hi_result_0, lo_result_0};
-                        stall_signal <= `DISABLE;
+                        stall_signal_from_mul <= `DISABLE;
                     end
                 end
                 default: begin
                     current_result <= 0;      // FIXME: {`ZERO_WORD, `ZERO_WORD} should be used here, but 0 is used
                     current_cycle <= 0;       // FIXME: 2'b00 should be used here, but 0 is used
-                    stall_signal <= `DISABLE;
+                    stall_signal_from_mul <= `DISABLE;
                 end
             endcase
         end
@@ -299,6 +373,10 @@ module ex(
             write_hilo_enable <= `DISABLE;
             write_hi_data <= 0;                     // FIXME: ZERO_WORD should be used here, but 0 is used
             write_lo_data <= 0;                     // FIXME: ZERO_WORD should be used here, but 0 is used
+        end else if (operator == `OPERATOR_DIV || operator == `OPERATOR_DIVU) begin
+            write_hilo_enable <= `ENABLE;
+            write_hi_data <= ex_div_result[63 : 32];
+            write_lo_data <= ex_div_result[31 : 0];
         end else if (operator == `OPERATOR_MSUB || operator == `OPERATOR_MSUBU
             || operator == `OPERATOR_MADD || operator == `OPERATOR_MADDU) begin
             write_hilo_enable <= `ENABLE;
