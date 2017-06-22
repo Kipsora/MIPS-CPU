@@ -1,33 +1,51 @@
 [{
     "name": "sample", 
     "path": "sample/program.s",
-    "report": "sample"
+    "report": "sample",
+    "polish": true
 }, {
     "name": "forwarding", 
     "path": "forwarding/program.s",
-    "report": "forwarding"
+    "report": "forwarding",
+    "polish": true
 }, {
     "name": "logic", 
     "path": "logic/program.s",
-    "report": "logic"
+    "report": "logic",
+    "polish": true
 }, {
     "name": "shift", 
     "path": "shift/program.s",
-    "report": "shift"
+    "report": "shift",
+    "polish": true
 }, {
     "name": "move", 
     "path": "move/program.s",
-    "report": "move"
+    "report": "move",
+    "polish": true
 }, {
     "name": "arithmetic", 
     "path": "arithmetic/program.s",
-    "report": "arithmetic"
+    "report": "arithmetic",
+    "polish": true
 }, {
     "name": "stall", 
     "path": "stall/program.s",
-    "report": "stall"
+    "report": "stall",
+    "polish": true
 }, {
     "name": "div", 
     "path": "div/program.s",
-    "report": "div"
+    "report": "div",
+    "polish": true
+}, {
+    "name": "fork1", 
+    "path": "fork/program1.s",
+    "report": "fork1",
+    "polish": false
+}, {
+    "name": "fork2", 
+    "path": "fork/program2.s",
+    "report": "fork2",
+    "polish": false
 }]

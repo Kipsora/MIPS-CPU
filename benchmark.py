@@ -14,13 +14,14 @@ def read_JSON(path):
     return json.loads(data)
 
 
-def to_MIPS_ASM(src, dst):
+def to_MIPS_ASM(src, dst, polish):
     with open(dst, 'w') as writer:
         with open(src, 'r') as reader:
-            writer.write('\t.org 0x0\n')
-            writer.write('\t.global _start\n')
-            writer.write('\t.set noat\n')
-            writer.write('_start:\n')
+            if polish:
+                writer.write('\t.org 0x0\n')
+                writer.write('\t.global _start\n')
+                writer.write('\t.set noat\n')
+                writer.write('_start:\n')
             for line in reader:
                 writer.write('\t' + line)
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
         forced_makedirs('.tmp')
         os.makedirs('result/' + test['report'])
         shutil.copy('tests/' + test['path'], '.tmp/program.mips')
-        to_MIPS_ASM('.tmp/program.mips', '.tmp/program.s')
+        to_MIPS_ASM('.tmp/program.mips', '.tmp/program.s', test['polish'])
         os.system('{}/mips-2014.05/bin/mips-sde-elf-as -mips32 .tmp/program.s -o .tmp/program.o'.format(UTILITY_PATH))
         os.system(
             '{}/mips-2014.05/bin/mips-sde-elf-ld -T {}/ram.ld .tmp/program.o -o .tmp/program.exa'.format(UTILITY_PATH,
@@ -48,6 +49,7 @@ if __name__ == "__main__":
         os.system(
             '{}/mips-2014.05/bin/mips-sde-elf-objcopy -O binary .tmp/program.exa .tmp/program.bin'.format(UTILITY_PATH,
                                                                                                           UTILITY_PATH))
+        shutil.copy('tests/' + test['path'], 'result/' + test['report'] + '/program.s')
         with open('source/program.rom', 'w') as writer:
             data = binascii.b2a_hex(open(".tmp/program.bin", "rb").read())
             for i in xrange(len(data) >> 3):

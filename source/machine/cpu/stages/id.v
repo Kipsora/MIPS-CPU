@@ -17,6 +17,14 @@ module id(
     input   wire[`REGS_DATA_BUS]        read_result1,
     input   wire[`REGS_DATA_BUS]        read_result2,
 
+    input   wire                        input_is_curr_in_delayslot,
+
+    output  reg                         is_curr_in_delayslot,
+    output  reg                         is_next_in_delayslot,
+    output  reg                         branch_signal,
+    output  reg[`REGS_DATA_BUS]         branch_target,
+    output  reg[`REGS_DATA_BUS]         return_target,
+
     output  reg                         read_enable1,
     output  reg                         read_enable2,
     output  reg[`REGS_ADDR_BUS]         read_addr1,
@@ -36,6 +44,16 @@ module id(
     reg[`REGS_DATA_BUS]                 imm;
     reg                                 validality;
 
+    wire[`REGS_DATA_BUS]                pc_plus_8;
+    wire[`REGS_DATA_BUS]                pc_plus_4;
+
+    wire[`REGS_DATA_BUS]                imm_sll2_signed_next;
+
+    assign pc_plus_8 = program_counter + 8;
+    assign pc_plus_4 = program_counter + 4;
+
+    assign imm_sll2_signed_next = {{14{instruction[15]}}, instruction[15 : 0], 2'b00};
+
     assign stall_signal = `DISABLE;
 
     always @ (*) begin
@@ -50,6 +68,11 @@ module id(
             read_addr1 <= 0;                    // FIXME: NOPRegAddr should be applied here, but 0 is used
             read_addr2 <= 0;                    // FIXME: NOPRegAddr should be applied here, but 0 is used
             imm <= 0;                           // FIXME: ZERO_WORD should be applied here, but 0 is used
+
+            return_target <= 0;                 // FIXME: ZERO_WORD should be applied here, but 0 is used
+            branch_target <= 0;                 // FIXME: ZERO_WORD should be applied here, but 0 is used
+            branch_signal <= `DISABLE;          // FIXME: ZERO_WORD should be applied here, but 0 is used
+            is_next_in_delayslot <= `FALSE;     // FIXME: ZERO_WORD should be applied here, but 0 is used
         end else begin
             alu_operator <= `INST_NOP_OPERATOR;
             alu_category <= `INST_NOP_CATEGORY;
@@ -61,6 +84,11 @@ module id(
             read_addr1 <= instruction[25 : 21];
             read_addr2 <= instruction[20 : 16];
             imm <= 0;                           // FIXME: ZERO_WORD should be applied here, but 0 is used
+
+            return_target <= 0;                 // FIXME: ZERO_WORD should be applied here, but 0 is used
+            branch_target <= 0;                 // FIXME: ZERO_WORD should be applied here, but 0 is used
+            branch_signal <= `DISABLE;          // FIXME: ZERO_WORD should be applied here, but 0 is used
+            is_next_in_delayslot <= `FALSE;     // FIXME: ZERO_WORD should be applied here, but 0 is used
             case (instruction[31 : 26])
                 6'b000000: begin                // category 1: special instruction
                     if (instruction[10 : 6] == 5'b00000) begin
@@ -265,10 +293,95 @@ module id(
                                 read_enable2 <= `ENABLE;
                                 validality <= `VALID;
                             end
+                            `INST_JR_ID: begin
+                                write_enable <= `DISABLE;
+                                alu_operator <= `INST_JR_OPERATOR;
+                                alu_category <= `INST_JR_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `DISABLE;
+                                return_target <= 0; // FIXME: 0 is used here, but `ZERO_WORD is expected
+                                branch_target <= alu_operand1;
+                                branch_signal <= `ENABLE;
+                                is_next_in_delayslot <= `TRUE;
+                                validality <= `VALID;
+                            end
+                            `INST_JALR_ID: begin
+                                write_enable <= `ENABLE;
+                                alu_operator <= `INST_JALR_OPERATOR;
+                                alu_category <= `INST_JALR_CATEGORY;
+                                read_enable1 <= `ENABLE;
+                                read_enable2 <= `DISABLE;
+                                write_addr <= instruction[15 : 11];
+                                return_target <= pc_plus_8;
+                                branch_target <= alu_operand1;
+                                branch_signal <= `ENABLE;
+                                is_next_in_delayslot <= `TRUE;
+                                validality <= `VALID;
+                            end
                             default: begin
                             end
                         endcase
                     end
+                end
+                6'b000001: begin
+                    case (instruction[20 : 16])
+                        `INST_BGEZ_ID: begin
+                            write_enable <= `DISABLE;
+                            alu_operator <= `INST_BGEZ_OPERATOR;
+                            alu_category <= `INST_BGEZ_CATEGORY;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `DISABLE;
+                            validality <= `VALID;
+                            if (!alu_operand1[31]) begin
+                                branch_target <= pc_plus_4 + imm_sll2_signed_next;
+                                branch_signal <= `ENABLE;
+                                is_next_in_delayslot <= `TRUE;
+                            end
+                        end
+                        `INST_BGEZAL_ID: begin
+                            write_enable <= `ENABLE;
+                            alu_operator <= `INST_BGEZAL_OPERATOR;
+                            alu_category <= `INST_BGEZAL_CATEGORY;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `DISABLE;
+                            return_target <= pc_plus_8;
+                            write_addr <= 5'b11111;
+                            validality <= `VALID;
+                            if (!alu_operand1[31]) begin
+                                branch_target <= pc_plus_4 + imm_sll2_signed_next;
+                                branch_signal <= `ENABLE;
+                                is_next_in_delayslot <= `TRUE;
+                            end
+                        end
+                        `INST_BLTZ_ID: begin
+                            write_enable <= `DISABLE;
+                            alu_operator <= `INST_BLTZ_OPERATOR;
+                            alu_category <= `INST_BLTZ_CATEGORY;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `DISABLE;
+                            validality <= `VALID;
+                            if (alu_operand1[31]) begin
+                                branch_target <= pc_plus_4 + imm_sll2_signed_next;
+                                branch_signal <= `ENABLE;
+                                is_next_in_delayslot <= `TRUE;
+                            end
+                        end
+                        `INST_BLTZAL_ID: begin
+                            write_enable <= `ENABLE;
+                            alu_operator <= `INST_BLTZAL_OPERATOR;
+                            alu_category <= `INST_BLTZAL_CATEGORY;
+                            read_enable1 <= `ENABLE;
+                            read_enable2 <= `DISABLE;
+                            return_target <= pc_plus_8;
+                            write_addr <= 5'b11111;
+                            validality <= `VALID;
+                            if (alu_operand1[31]) begin
+                                branch_target <= pc_plus_4 + imm_sll2_signed_next;
+                                branch_signal <= `ENABLE;
+                                is_next_in_delayslot <= `TRUE;
+                            end
+                        end
+                    endcase
                 end
                 6'b011100: begin                // category 2: special instruction
                     case (instruction[5 : 0])
@@ -331,6 +444,83 @@ module id(
                         default: begin
                         end
                     endcase
+                end
+                `INST_J_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_J_OPERATOR;
+                    alu_category <= `INST_J_CATEGORY;
+                    read_enable1 <= `DISABLE;
+                    read_enable2 <= `DISABLE;
+                    return_target <= 0; // FIXME: 0 is used here, but `ZERO_WORD is expected
+                    branch_signal <= `ENABLE;
+                    branch_target <= {pc_plus_4[31 : 28], instruction[25 : 0], 2'b00};
+                    is_next_in_delayslot <= `TRUE;
+                    validality <= `VALID;
+                end
+                `INST_JAL_ID: begin
+                    write_enable <= `ENABLE;
+                    alu_operator <= `INST_JAL_OPERATOR;
+                    alu_category <= `INST_JAL_CATEGORY;
+                    read_enable1 <= `DISABLE;
+                    read_enable2 <= `DISABLE;
+                    write_addr <= 5'b11111;
+                    return_target <= pc_plus_8;
+                    branch_signal <= `ENABLE;
+                    branch_target <= {pc_plus_4[31 : 28], instruction[25 : 0], 2'b00};
+                    is_next_in_delayslot <= `TRUE;
+                    validality <= `VALID;
+                end
+                `INST_BEQ_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_BEQ_OPERATOR;
+                    alu_category <= `INST_BEQ_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    validality <= `VALID;
+                    if (alu_operand1 == alu_operand2) begin
+                        branch_target <= pc_plus_4 + imm_sll2_signed_next;
+                        branch_signal <= `ENABLE;
+                        is_next_in_delayslot <= `TRUE;
+                    end
+                end
+                `INST_BGTZ_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_BGTZ_OPERATOR;
+                    alu_category <= `INST_BGTZ_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    validality <= `VALID;
+                    if (!alu_operand1[31] && alu_operand1 != 0) begin // FIXME: ZEROWORD should be used here
+                        branch_target <= pc_plus_4 + imm_sll2_signed_next;
+                        branch_signal <= `ENABLE;
+                        is_next_in_delayslot <= `TRUE;
+                    end
+                end
+                `INST_BLEZ_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_BLEZ_OPERATOR;
+                    alu_category <= `INST_BLEZ_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `DISABLE;
+                    validality <= `VALID;
+                    if (alu_operand1[31] || alu_operand1 == 0) begin // FIXME: ZEROWORD should be used here
+                        branch_target <= pc_plus_4 + imm_sll2_signed_next;
+                        branch_signal <= `ENABLE;
+                        is_next_in_delayslot <= `TRUE;
+                    end
+                end
+                `INST_BNE_ID: begin
+                    write_enable <= `DISABLE;
+                    alu_operator <= `INST_BNE_OPERATOR;
+                    alu_category <= `INST_BNE_CATEGORY;
+                    read_enable1 <= `ENABLE;
+                    read_enable2 <= `ENABLE;
+                    validality <= `VALID;
+                    if (alu_operand1 != alu_operand2) begin
+                        branch_target <= pc_plus_4 + imm_sll2_signed_next;
+                        branch_signal <= `ENABLE;
+                        is_next_in_delayslot <= `TRUE;
+                    end
                 end
                 `INST_ORI_ID: begin
                     write_enable <= `ENABLE;
@@ -457,6 +647,14 @@ module id(
                     end
                 endcase
             end
+        end
+    end
+
+    always @ (*) begin
+        if (reset == `ENABLE) begin
+            is_curr_in_delayslot <= `FALSE;
+        end else begin
+            is_curr_in_delayslot <= input_is_curr_in_delayslot;
         end
     end
 

@@ -27,6 +27,9 @@ module ex(
     input   wire[`DOUBLE_REGS_DATA_BUS] last_result,
     input   wire[`CYCLE_BUS]            last_cycle,
 
+    input   wire[`REGS_DATA_BUS]        return_target,
+    input   wire                        is_curr_in_delayslot,
+
     output  reg[`REGS_DATA_BUS]         to_div_operand1,
     output  reg[`REGS_DATA_BUS]         to_div_operand2,
     output  reg                         to_div_is_start,
@@ -361,6 +364,9 @@ module ex(
             end
             `CATEGORY_MULTIPLY: begin
                 write_data <= mult_result;
+            end
+            `CATEGORY_FORK: begin
+                write_data <= return_target;
             end
             default: begin
                 write_data <= 0;                    // FIXME: ZERO_WORD should be used here, but 0 is used

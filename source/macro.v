@@ -15,6 +15,7 @@
 `define CATEGORY_MOVE       3'b011       // FIXME: defined by myself
 `define CATEGORY_ARITHMETIC 3'b100       // FIXME: defined by myself
 `define CATEGORY_MULTIPLY   3'b101       // FIXME: defined by myself
+`define CATEGORY_FORK       3'b110       // FIXME: defined by myself
 
 `define OPERATOR_NOP   8'b00000000       // FIXME: defined by myself
 `define OPERATOR_AND   8'b00000001       // FIXME: defined by myself
@@ -48,7 +49,19 @@
 `define OPERATOR_MSUBU 8'b00011101       // FIXME: defined by myself
 `define OPERATOR_DIV   8'b00011110       // FIXME: defined by myself
 `define OPERATOR_DIVU  8'b00011111       // FIXME: defined by myself
+`define OPERATOR_JR    8'b00100000       // FIXME: defined by myself
+`define OPERATOR_JALR  8'b00100001       // FIXME: defined by myself
+`define OPERATOR_J     8'b00100010       // FIXME: defined by myself
+`define OPERATOR_JAL   8'b00100011       // FIXME: defined by myself
+`define OPERATOR_BEQ   8'b00100100       // FIXME: defined by myself
 `define OPERATOR_OR    8'b00100101       // FIXME: defined by myself
+`define OPERATOR_BGEZ  8'b00100110       // FIXME: defined by myself
+`define OPERATOR_BGEZAL 8'b00100111       // FIXME: defined by myself
+`define OPERATOR_BGTZ 8'b00101000        // FIXME: defined by myself
+`define OPERATOR_BLEZ 8'b00101001        // FIXME: defined by myself
+`define OPERATOR_BLTZ 8'b00101010        // FIXME: defined by myself
+`define OPERATOR_BLTZAL 8'b00101011      // FIXME: defined by myself
+`define OPERATOR_BNE  8'b00101100        // FIXME: defined by myself
 
 `define INST_NOP_ID 6'b000000
 `define INST_NOP_CATEGORY `CATEGORY_NOP
@@ -225,6 +238,54 @@
 `define INST_DIVU_ID 6'b011011
 `define INST_DIVU_CATEGORY `CATEGORY_NOP
 `define INST_DIVU_OPERATOR `OPERATOR_DIVU
+
+`define INST_J_ID 6'b000010
+`define INST_J_CATEGORY `CATEGORY_FORK
+`define INST_J_OPERATOR `OPERATOR_J
+
+`define INST_JAL_ID 6'b000011
+`define INST_JAL_CATEGORY `CATEGORY_FORK
+`define INST_JAL_OPERATOR `OPERATOR_JAL
+
+`define INST_JALR_ID 6'b001001
+`define INST_JALR_CATEGORY `CATEGORY_FORK
+`define INST_JALR_OPERATOR `OPERATOR_JALR
+
+`define INST_JR_ID 6'b001000
+`define INST_JR_CATEGORY `CATEGORY_FORK
+`define INST_JR_OPERATOR `OPERATOR_JR
+
+`define INST_BEQ_ID 6'b000100
+`define INST_BEQ_CATEGORY `CATEGORY_FORK
+`define INST_BEQ_OPERATOR `OPERATOR_BEQ
+
+`define INST_BGEZ_ID 5'b00001
+`define INST_BGEZ_CATEGORY `CATEGORY_FORK
+`define INST_BGEZ_OPERATOR `OPERATOR_BGEZ
+
+`define INST_BGEZAL_ID 5'b10001
+`define INST_BGEZAL_CATEGORY `CATEGORY_FORK
+`define INST_BGEZAL_OPERATOR `OPERATOR_BGEZAL
+
+`define INST_BGTZ_ID 6'b000111
+`define INST_BGTZ_CATEGORY `CATEGORY_FORK
+`define INST_BGTZ_OPERATOR `OPERATOR_BGTZ
+
+`define INST_BLEZ_ID 6'b000110
+`define INST_BLEZ_CATEGORY `CATEGORY_FORK
+`define INST_BLEZ_OPERATOR `OPERATOR_BLEZ
+
+`define INST_BLTZ_ID 5'b00000
+`define INST_BLTZ_CATEGORY `CATEGORY_FORK
+`define INST_BLTZ_OPERATOR `OPERATOR_BLTZ
+
+`define INST_BLTZAL_ID 5'b10000
+`define INST_BLTZAL_CATEGORY `CATEGORY_FORK
+`define INST_BLTZAL_OPERATOR `OPERATOR_BLTZAL
+
+`define INST_BNE_ID 6'b000101
+`define INST_BNE_CATEGORY `CATEGORY_FORK
+`define INST_BNE_OPERATOR `OPERATOR_BNE
 
 `define INST_ADDR_BUS 31:0
 `define INST_DATA_BUS 31:0

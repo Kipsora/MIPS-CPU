@@ -93,12 +93,23 @@ module mips(
     wire[`DOUBLE_REGS_DATA_BUS]         ex_mem_last_result;
     wire[`CYCLE_BUS]                    ex_mem_last_cycle;
 
+    wire                                curr_next_is_in_delayslot_connector;
+    wire                                id_is_curr_in_delayslot;
+    wire                                id_is_next_in_delayslot;
+    wire                                id_branch_signal;
+    wire[`REGS_DATA_BUS]                id_branch_target;
+    wire[`REGS_DATA_BUS]                id_return_target;
+    wire                                id_ex_is_curr_in_delayslot;
+    wire[`REGS_DATA_BUS]                id_ex_return_target;
+
     pc_reg                              pc_reg_instance(
         .clock(clock), 
         .reset(reset),
         .stall(stall_signal),
         .program_counter(if_program_counter),
-        .chip_enable(rom_chip_enable)
+        .chip_enable(rom_chip_enable),
+        .branch_signal(id_branch_signal),
+        .branch_target(id_branch_target)
     );
 
     assign rom_addr = if_program_counter;
@@ -156,6 +167,12 @@ module mips(
         .mem_write_data(mem_write_data),
         .read_result1(gpr_file_read_result1),
         .read_result2(gpr_file_read_result2),
+        .input_is_curr_in_delayslot(curr_next_is_in_delayslot_connector),
+        .is_curr_in_delayslot(id_is_curr_in_delayslot),
+        .is_next_in_delayslot(id_is_next_in_delayslot),
+        .branch_signal(id_branch_signal),
+        .branch_target(id_branch_target),
+        .return_target(id_return_target),
         .read_enable1(gpr_file_read_enable1),
         .read_enable2(gpr_file_read_enable2),
         .read_addr1(gpr_file_read_addr1),
@@ -179,12 +196,18 @@ module mips(
         .id_operand2(id_alu_operand2),
         .id_write_addr(id_write_addr),
         .id_write_enable(id_write_enable),
+        .id_return_target(id_return_target),
+        .id_is_curr_in_delayslot(id_is_curr_in_delayslot),
+        .input_is_next_in_delayslot(id_is_next_in_delayslot),
         .ex_operator(id_ex_buffer_alu_operator),
         .ex_category(id_ex_buffer_alu_category),
         .ex_operand1(id_ex_buffer_alu_operand1),
         .ex_operand2(id_ex_buffer_alu_operand2),
         .ex_write_addr(id_ex_buffer_write_addr),
-        .ex_write_enable(id_ex_buffer_write_enable)
+        .ex_write_enable(id_ex_buffer_write_enable),
+        .ex_return_target(id_ex_return_target),
+        .ex_is_curr_in_delayslot(id_ex_is_curr_in_delayslot),
+        .is_curr_in_delayslot(curr_next_is_in_delayslot_connector)
     );
 
     ex                                  ex_instance(
@@ -207,6 +230,8 @@ module mips(
         .input_write_enable(id_ex_buffer_write_enable),
         .last_result(ex_mem_last_result),
         .last_cycle(ex_mem_last_cycle),
+        .return_target(id_ex_return_target),
+        .is_curr_in_delayslot(id_ex_is_curr_in_delayslot),
         .to_div_operand1(ex_to_div_operand1),
         .to_div_operand2(ex_to_div_operand2),
         .to_div_is_start(ex_to_div_is_start),
