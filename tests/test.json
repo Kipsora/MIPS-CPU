@@ -49,8 +49,8 @@
     "report": "fork2",
     "polish": false
 }, {
-    "name": "ramio", 
-    "path": "ramio/program.s",
-    "report": "ramio",
+    "name": "comprehension", 
+    "path": "comprehension/program.s",
+    "report": "comprehension",
     "polish": false
 }]

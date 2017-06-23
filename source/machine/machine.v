@@ -1,7 +1,7 @@
 `include "macro.v"
 `include "machine/cpu/mips.v"
-`include "machine/rom/rom.v"
-`include "machine/rom/ram.v"
+`include "machine/memory/rom.v"
+`include "machine/memory/ram.v"
 
 module machine(
     input   wire                        clock,
